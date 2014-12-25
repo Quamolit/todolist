@@ -23,7 +23,11 @@ module.exports =
   render: ->
   renderView: (manager) ->
     factory = @render()
-    factory @getBase(), manager
+    # return a wrapped object
+    category: 'component'
+    name: @name
+    id: @id
+    data: factory @getBase(), manager
 
   # pass some render info to children
   getBase: ->

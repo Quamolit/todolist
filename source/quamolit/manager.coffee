@@ -1,4 +1,6 @@
 
+json = require 'cirru-json'
+
 module.exports = class Manager
   constructor: (options) ->
     @vmDict = {}
@@ -15,7 +17,8 @@ module.exports = class Manager
   render: (creator) ->
     viewport = @getViewport()
     chunk = creator viewport, @
-    console.log chunk
+    # console.log JSON.stringify chunk, null, 2
+    console.log json.generate chunk
 
   triggerViewEvent: (event) ->
     console.log event

@@ -5,6 +5,7 @@ project = 'todolist'
 dev = yes
 libraries = [
   'lodash'
+  'cirru-json'
 ]
 
 gulp.task 'folder', (cb) ->

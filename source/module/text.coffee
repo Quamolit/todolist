@@ -6,6 +6,7 @@ module.exports = creator.create
 
   render: ->
     ->
+      category: 'canvas'
       type: 'text'
       x: 0, y: 0
       size: 14
