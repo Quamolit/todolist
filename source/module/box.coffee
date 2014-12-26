@@ -5,6 +5,7 @@ module.exports = creator.create
   name: 'box'
 
   render: ->
-    type: 'box'
-    x: 0, y: 0
-    width: 240, height: 40
+    =>
+      type: 'box'
+      x: 0, y: 0
+      width: 240, height: 40

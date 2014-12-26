@@ -3,6 +3,16 @@ lodash = require 'lodash'
 
 component = require './component'
 
+evaluate = (c, manager) ->
+  factory = c.render()
+  unless lodash.isArray factory
+    factory = [factory]
+  # return a wrapped object
+  category: 'component'
+  name: c.name
+  id: c.id
+  children: factory.map (f) -> f c.getBase(), manager
+
 exports.create = (options) ->
   # call this in side render
   (props, children...) ->
@@ -23,4 +33,4 @@ exports.create = (options) ->
         c.setState = (data) ->
           c.state = vm.state = lodash.assign {}, vm.state, data
 
-      c.renderView manager
+      evaluate c, manager

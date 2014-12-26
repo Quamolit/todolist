@@ -21,13 +21,6 @@ module.exports =
 
   # user rendering method like React
   render: ->
-  renderView: (manager) ->
-    factory = @render()
-    # return a wrapped object
-    category: 'component'
-    name: @name
-    id: @id
-    data: factory @getBase(), manager
 
   # pass some render info to children
   getBase: ->
