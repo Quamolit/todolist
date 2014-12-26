@@ -1,4 +1,6 @@
 
+lodash = require 'lodash'
+
 module.exports =
   viewport: {} # global viewport infomation
   props: {} # parent properties
@@ -16,8 +18,10 @@ module.exports =
   # work with props like React
   getIntialState: {}
 
-  # state is actually inside manager, need rewriting
-  setState: ->
+  # will be binded
+  setState: (data) ->
+    lodash.assign @state, data
+    @markComponentDirty()
 
   # user rendering method like React
   render: ->

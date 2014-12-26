@@ -2,7 +2,9 @@
 creator = require '../quamolit/creator'
 
 module.exports = creator.create
-  name: 'container'
+  name: 'button'
 
   render: ->
-    @factors
+    =>
+      type: 'canvas'
+      text: 'demo'

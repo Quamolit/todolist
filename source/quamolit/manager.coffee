@@ -18,7 +18,10 @@ module.exports = class Manager
     viewport = @getViewport()
     chunk = creator viewport, @
     # console.log JSON.stringify chunk, null, 2
-    console.log json.generate chunk
+    @compareViews chunk
+
+  compareViews: (tree) ->
+    console.log json.generate tree
 
   triggerViewEvent: (event) ->
     console.log event

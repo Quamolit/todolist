@@ -1,11 +1,13 @@
 
 creator = require '../quamolit/creator'
 
+check = require '../module/check'
+input = require '../module/input'
+
 module.exports = creator.create
   name: 'line'
 
-  render: ->
-    ->
-      category: 'canvas'
-      type: 'line'
-      x: 0, y: 0
+  render: -> [
+    check done: no
+    input value: 'text'
+  ]
