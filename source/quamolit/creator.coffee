@@ -1,29 +1,8 @@
 
 lodash = require 'lodash'
 
+tool = require '../util/tool'
 component = require './component'
-
-evaluate = (c, manager) ->
-  factory = c.render()
-  unless lodash.isArray factory
-    factory = [factory]
-  # return a wrapped object
-  lodash.assign c,
-    category: 'component'
-    children: factory.map (f, index) ->
-      childBase =
-        index: index
-        baseId: c.id
-      lodash.assign childBase, c.getChildBase()
-      f childBase, manager
-
-writeId = (c) ->
-  # use user written id if exists
-  if c.id then return c
-  # generate id as: c.base.baseId + (props.key or base.index)
-  index = c.props?.key or c.base.index.toString()
-  c.id = "#{c.base.baseId}/#{c.name}.#{index}"
-  c
 
 connectStore = (c) ->
   return c unless c.stores?
@@ -37,6 +16,15 @@ connectStore = (c) ->
   c.setState cache
   c
 
+expandChildren = (target, children, manager) ->
+  children = [children] unless lodash.isArray children
+  children.map (f, index) ->
+    childBase =
+      index: index
+      baseId: target.id
+    lodash.assign childBase, target.getChildBase()
+    f childBase, manager
+
 exports.create = (options) ->
   # call this in side render
   (props, children...) ->
@@ -45,25 +33,18 @@ exports.create = (options) ->
       c = lodash.cloneDeep component
       vm = manager.vmDict[c.id]
       target = vm or c
+      base.children = expandChildren target, children, manager
 
-      lodash.assign c, options
-      lodash.assign c,
+      lodash.assign c, options,
         viewport: manager.getViewport()
         props: props
         base: base
-        children: children.map (f, index) ->
-          childBase =
-            index: index
-            baseId: target.id
-          lodash.assign childBase, target.getChildBase()
-          f childBase, manager
 
-      # bind method to a working component
-      lodash.map c, (name, method) ->
-        if lodash.isFunction method
-          bindedMethod = method.bind target
-          c[name] = bindedMethod
-          bindedMethod.toString = -> method.toString()
+      # use user written id if exists
+      unless c.id?
+        # generate id as: c.base.baseId + (props.key or base.index)
+        index = c.props?.key or c.base.index.toString()
+        c.id = "#{c.base.baseId}/#{c.name}.#{index}"
 
       # if vm is present, redirect state
       if vm?
@@ -74,5 +55,15 @@ exports.create = (options) ->
         c.state = c.getIntialState?() or {}
         # store is connected to state directly
         c = connectStore c
-      c = writeId c
-      evaluate c, manager
+
+      # flattern array, in case of this.base.children
+      factory = lodash.flatten c.render()
+      # return a wrapped object
+      lodash.assign c,
+        category: 'component'
+        children: expandChildren c, factory, manager
+
+      # bind method to a working component
+      tool.bindMethodsTo c, target
+
+      return c
