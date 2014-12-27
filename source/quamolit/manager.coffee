@@ -14,18 +14,17 @@ module.exports = class Manager
 
   getViewport: ->
     # get node geomerty
-    {}
+    index: 0
 
   render: (creator) ->
     viewport = @getViewport()
-    chunk = creator 0, viewport, @
-    # console.log JSON.stringify chunk, null, 2
-    @compareViews chunk
+    tree = creator 0, viewport, @
+    @compareViews (lodash.cloneDeep tree)
     @startAnimationLoop()
 
   compareViews: (tree) ->
-    console.info json.generate tree
     list = treeUtil.flatten tree
+    console.log list
     # register new viewmodels
     lodash.each list, (child) =>
       @registerVm child
@@ -114,3 +113,4 @@ module.exports = class Manager
       c.stage = 'stable'
 
   handleStableNodes: (c, id, now) ->
+    # currently stable state does not change internally

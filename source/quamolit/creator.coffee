@@ -8,18 +8,17 @@ evaluate = (c, manager) ->
   unless lodash.isArray factory
     factory = [factory]
   # return a wrapped object
-  category: 'component'
-  name: c.name
-  id: c.id
-  children: factory.map (f) ->
-    childBase = lodash.assign {}, c.getBase()
-    f c.id, childBase, manager
+  lodash.assign c,
+    category: 'component'
+    children: factory.map (f, index) ->
+      childBase = lodash.assign {index}, c.getBase()
+      f c.id, childBase, manager
 
 writeId = (c, baseId) ->
   # use user written id if exists
   if c.id then return c
   # generate id as: baseId + (props.key or base.index)
-  index = c.props.key or baseId.toString()
+  index = c.props.key or c.base.index.toString()
   c.id = "#{baseId}/#{c.name}.#{index}"
   c
 
@@ -49,11 +48,9 @@ exports.create = (options) ->
         viewport: manager.getViewport()
         props: props or {}
         base: base
-        children: children.map (f) ->
-          childBase = lodash.assign {}, target.getBase()
+        children: children.map (f, index) ->
+          childBase = lodash.assign {index}, target.getBase()
           f target.id, childBase, manager
-        markComponentDirty: ->
-          console.warn 'dirty'
 
       # bind method to a working component
       lodash.map c, (name, method) ->
@@ -64,7 +61,7 @@ exports.create = (options) ->
 
       # if vm is present, redirect state
       if vm?
-      then Object.defineProperty 'state',
+      then Object.defineProperty c, 'state',
         get: -> vm.state
         set: -> console.error 'can not assign to state'
       else

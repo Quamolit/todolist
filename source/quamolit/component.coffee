@@ -1,6 +1,8 @@
 
 lodash = require 'lodash'
 
+time = require '../util/time'
+
 module.exports =
   viewport: {} # global viewport infomation
   props: {} # parent properties
@@ -28,8 +30,10 @@ module.exports =
 
   # will be binded
   setState: (data) ->
-    lodash.assign @state, data
-    @markComponentDirty()
+    console.info "setState at #{@id}"
+    lodash.assign @state, data,
+      stage: 'tween'
+      stageTime: time.now()
 
   # user rendering method like React
   render: ->
