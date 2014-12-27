@@ -11,10 +11,21 @@ evaluate = (c, manager) ->
   category: 'component'
   name: c.name
   id: c.id
-  children: factory.map (f) -> f c.getBase(), manager
+  children: factory.map (f, index) ->
+    childBase = lodash.assign {index}, c.getBase()
+    f childBase, manager
+
+writeId = (c) ->
+  # use user written id if exists
+  if c.id then return c
+  # generate id as: base.prefix + (props.key or base.index)
+  prefix = c.base.prefix or ''
+  index = c.props.key or c.base.index.toString()
+  c.id = "#{prefix}/#{c.name}.#{index}"
+  c
 
 connectStore = (c) ->
-  return unless c.stores?
+  return c unless c.stores?
   cache = {}
   listener = []
   for key, value of c.stores
@@ -25,30 +36,31 @@ connectStore = (c) ->
   c.setState cache
   c.componentWillDestroy = ->
     listener.forEach (f) -> f()
+  c
 
 exports.create = (options) ->
   # call this in side render
   (props, children...) ->
     # call this when parent is computed
     (base, manager) ->
-      c = {}
+      c = lodash.cloneDeep component
       vm = manager.vmDict[c.id]
       target = vm or c
 
-      lodash.assign c, component
       lodash.assign c, options
       lodash.assign c,
         viewport: manager.getViewport()
         props: props or {}
         base: base
-        children: children.map (f) ->
-          f (vm or c).getBase(), manager
+        children: children.map (f, index) ->
+          childBase = lodash.assign {index}, target.getBase()
+          f childBase, manager
         markComponentDirty: ->
           console.warn 'dirty'
 
       # bind method to a working component
-      for name, method of c
-        if typeof method is 'function'
+      lodash.map c, (name, method) ->
+        if lodash.isFunction method
           bindedMethod = method.bind target
           c[name] = bindedMethod
           bindedMethod.toString = -> method.toString()
@@ -60,5 +72,7 @@ exports.create = (options) ->
         set: -> console.error 'can not assign to state'
       else
         c.state = c.getIntialState?() or {}
-        connectStore c
+        # store is connected to state directly
+        c = connectStore c
+      c = writeId c
       evaluate c, manager

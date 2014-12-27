@@ -28,3 +28,4 @@ module.exports = class Manager
 
   getViewport: ->
     # get node geomerty
+    index: 0

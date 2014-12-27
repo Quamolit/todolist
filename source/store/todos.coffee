@@ -5,7 +5,15 @@ lodash = require 'lodash'
 Dispatcher = require '../util/dispatcher'
 actions = require '../actions'
 
-list = []
+list = [
+  id: 'eee1'
+  text: 'a'
+  done: yes
+,
+  id: 'eee2'
+  text: 'b'
+  done: no
+]
 
 module.exports = exports = new Dispatcher
 

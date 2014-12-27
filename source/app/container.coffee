@@ -17,6 +17,9 @@ module.exports = creator.create
   getIntialState: ->
     text: ''
 
+  getBase: ->
+    prefix: @id
+
   render: ->
     list = [
       input null
@@ -24,5 +27,6 @@ module.exports = creator.create
     ]
 
     items = @state.todos.map (data) =>
+      line data: data
 
     list.concat items
