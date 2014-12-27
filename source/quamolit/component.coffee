@@ -13,6 +13,12 @@ module.exports =
   id: null # only a unique one uses id instead of name
   isMounted: true
 
+  # animation parameters
+  delay: 200
+  duration: 200
+  stage: 'new' # [new delay entering tween stable leaving dead]
+  stageTime: 0 # time entered current state, in number
+
   # extra states for generating animations
   getEnteringState: -> {}
   getLeavingState: -> {}
@@ -33,3 +39,11 @@ module.exports =
 
   # decide if click point is inside
   isPointIn: ->
+
+  # functions called in entering stages
+  onNewCalls:       []
+  onDelayCalls:     []
+  onEnteringCalls:  []
+  onStableCalls:    []
+  onLeavingCalls:   []
+  onDestroyCalls:   []

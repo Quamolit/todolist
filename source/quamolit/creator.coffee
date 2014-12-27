@@ -11,15 +11,15 @@ evaluate = (c, manager) ->
   category: 'component'
   name: c.name
   id: c.id
-  children: factory.map (f, index) ->
-    childBase = lodash.assign {index}, c.getBase()
+  children: factory.map (f) ->
+    childBase = lodash.assign {}, c.getBase()
     f c.id, childBase, manager
 
 writeId = (c, baseId) ->
   # use user written id if exists
   if c.id then return c
   # generate id as: baseId + (props.key or base.index)
-  index = c.props.key or c.base.index.toString()
+  index = c.props.key or baseId.toString()
   c.id = "#{baseId}/#{c.name}.#{index}"
   c
 
@@ -31,10 +31,8 @@ connectStore = (c) ->
     cache[key] = value.get()
     f = -> c.setState key, value.get()
     value.register f
-    listener.push -> value.unregister f
+    c.onLeavingCalls.push -> value.unregister f
   c.setState cache
-  c.componentWillDestroy = ->
-    listener.forEach (f) -> f()
   c
 
 exports.create = (options) ->
@@ -51,8 +49,8 @@ exports.create = (options) ->
         viewport: manager.getViewport()
         props: props or {}
         base: base
-        children: children.map (f, index) ->
-          childBase = lodash.assign {index}, target.getBase()
+        children: children.map (f) ->
+          childBase = lodash.assign {}, target.getBase()
           f target.id, childBase, manager
         markComponentDirty: ->
           console.warn 'dirty'
