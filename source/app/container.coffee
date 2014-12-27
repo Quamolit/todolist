@@ -11,14 +11,12 @@ module.exports = creator.create
 
   stores: {todos}
 
-  componentDidMount: ->
-    @connect todos: todos
-
   getIntialState: ->
     text: ''
 
-  getBase: ->
-    {}
+  getChildBase: ->
+    baseId: @id
+    z: @base.z.concat @base.index
 
   render: ->
     list = [

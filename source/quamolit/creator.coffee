@@ -11,15 +11,18 @@ evaluate = (c, manager) ->
   lodash.assign c,
     category: 'component'
     children: factory.map (f, index) ->
-      childBase = lodash.assign {index}, c.getBase()
-      f c.id, childBase, manager
+      childBase =
+        index: index
+        baseId: c.id
+      lodash.assign childBase, c.getChildBase()
+      f childBase, manager
 
-writeId = (c, baseId) ->
+writeId = (c) ->
   # use user written id if exists
   if c.id then return c
-  # generate id as: baseId + (props.key or base.index)
-  index = c.props.key or c.base.index.toString()
-  c.id = "#{baseId}/#{c.name}.#{index}"
+  # generate id as: c.base.baseId + (props.key or base.index)
+  index = c.props?.key or c.base.index.toString()
+  c.id = "#{c.base.baseId}/#{c.name}.#{index}"
   c
 
 connectStore = (c) ->
@@ -38,7 +41,7 @@ exports.create = (options) ->
   # call this in side render
   (props, children...) ->
     # call this when parent is computed
-    (baseId, base, manager) ->
+    (base, manager) ->
       c = lodash.cloneDeep component
       vm = manager.vmDict[c.id]
       target = vm or c
@@ -46,11 +49,14 @@ exports.create = (options) ->
       lodash.assign c, options
       lodash.assign c,
         viewport: manager.getViewport()
-        props: props or {}
+        props: props
         base: base
         children: children.map (f, index) ->
-          childBase = lodash.assign {index}, target.getBase()
-          f target.id, childBase, manager
+          childBase =
+            index: index
+            baseId: target.id
+          lodash.assign childBase, target.getChildBase()
+          f childBase, manager
 
       # bind method to a working component
       lodash.map c, (name, method) ->
@@ -68,5 +74,5 @@ exports.create = (options) ->
         c.state = c.getIntialState?() or {}
         # store is connected to state directly
         c = connectStore c
-      c = writeId c, baseId
+      c = writeId c
       evaluate c, manager

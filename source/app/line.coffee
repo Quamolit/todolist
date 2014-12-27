@@ -7,8 +7,8 @@ input = require '../module/input'
 module.exports = creator.create
   name: 'line'
 
-  getBase: ->
-    {}
+  getChildBase: ->
+    baseId: @id
 
   render: -> [
     check done: no

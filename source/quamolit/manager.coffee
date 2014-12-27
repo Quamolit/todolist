@@ -14,11 +14,14 @@ module.exports = class Manager
 
   getViewport: ->
     # get node geomerty
+    baseId: ''
     index: 0
+    z: [0]
 
   render: (creator) ->
-    viewport = @getViewport()
-    tree = creator 0, viewport, @
+    rootBase =  @getViewport()
+    tree = creator rootBase, @
+    console.log json.generate tree
     @compareViews (lodash.cloneDeep tree)
     @startAnimationLoop()
 
@@ -108,9 +111,14 @@ module.exports = class Manager
       tool.evalArray c.onStableCalls
 
   handleTweenNodes: (c, id, now) ->
-    if now - c.stageTime > c.duration
+    unless c.isMounted
+      c.stageTime = now
+      c.stage = 'leaving'
+    else if now - c.stageTime > c.duration
       c.stageTime = now
       c.stage = 'stable'
 
   handleStableNodes: (c, id, now) ->
-    # currently stable state does not change internally
+    unless c.isMounted
+      c.stageTime = now
+      c.stage = 'leaving'

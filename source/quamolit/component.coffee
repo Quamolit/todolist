@@ -39,7 +39,7 @@ module.exports =
   render: ->
 
   # pass some render info to children
-  getBase: ->
+  getChildBase: ->
 
   # decide if click point is inside
   isPointIn: ->
