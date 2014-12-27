@@ -8,7 +8,7 @@ module.exports = creator.create
   name: 'line'
 
   getBase: ->
-    prefix: @id
+    {}
 
   render: -> [
     check done: no

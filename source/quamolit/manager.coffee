@@ -16,7 +16,7 @@ module.exports = class Manager
 
   render: (creator) ->
     viewport = @getViewport()
-    chunk = creator viewport, @
+    chunk = creator 0, viewport, @
     # console.log JSON.stringify chunk, null, 2
     @compareViews chunk
 

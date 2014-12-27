@@ -18,7 +18,7 @@ module.exports = creator.create
     text: ''
 
   getBase: ->
-    prefix: @id
+    {}
 
   render: ->
     list = [
