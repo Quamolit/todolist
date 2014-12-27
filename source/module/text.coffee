@@ -3,6 +3,7 @@ creator = require '../quamolit/creator'
 
 module.exports = creator.create
   name: 'text'
+  category: 'canvas'
 
   render: ->
     =>

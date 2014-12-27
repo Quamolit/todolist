@@ -8,8 +8,10 @@ module.exports =
 
   bezier: (x) -> x # linear by default
 
+  category: 'canvas' # or changed to component
   name: '<unknown>' # must specify
   id: null # only a unique one uses id instead of name
+  isMounted: true
 
   # extra states for generating animations
   getEnteringState: -> {}
