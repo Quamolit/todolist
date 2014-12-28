@@ -56,6 +56,7 @@ exports.create = (options) ->
       else
         c.state = c.getIntialState?() or {}
         c.tweenState = c.tweenFrame = c.getTweenState?() or {}
+        # console.log c.id, c.tweenState
         # store is connected to state directly
         c = connectStore c
         c.onNewComponent()

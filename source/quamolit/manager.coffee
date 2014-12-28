@@ -117,6 +117,7 @@ module.exports = class Manager
     ratio = (now - c.stageTime) / c.duration()
     c.tweenFrame = tool.computeTween c.stageTimeState,
       c.tweenState, ratio, c.bezier()
+    # console.log c.id, c.tweenFrame
 
   paintVms: ->
     geomerties = @vmList
@@ -125,6 +126,6 @@ module.exports = class Manager
     .map (vm) ->
       vm.children[0]
 
+    console.clear()
     console.info (json.generate geomerties)
-    return
     painter.paint geomerties, @node

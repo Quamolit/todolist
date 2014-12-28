@@ -1,14 +1,13 @@
 
 add = (a, b) ->
   x: a.x + b.x
-  y: y.x + y.x
+  y: a.x + b.y
 
 minus = (a, b) ->
   x: a.x - b.x
-  y: y.x - y.x
+  y: a.y - b.y
 
 renderText = (ctx, op) ->
-  ctx.translate op.base.x, op.base.y
   ctx.font = "#{op.size}px #{op.family}"
   ctx.textAlign = op.textAlign
   ctx.textBaseline = op.textBaseline
@@ -16,7 +15,6 @@ renderText = (ctx, op) ->
   ctx.fillText op.text, op.from.x, op.from.y
 
 renderRect = (ctx, op) ->
-  ctx.translate op.base.x, op.base.y
   a = minus op.from, op.vector
   b = add op.from, op.vector
   switch op.kind
@@ -43,16 +41,18 @@ exports.paint = (operations, node) ->
 
   ctx = node.getContext('2d')
   ctx.clearRect 0, 0, node.width, node.height
+  ctx.save()
   shiftX = Math.round (node.width / 2)
   shiftY = Math.round (node.height / 2)
-
   ctx.translate shiftX, shiftY
 
   operations.forEach (op) ->
     ctx.save()
+    ctx.translate op.base.x, op.base.y
     switch op.type
       when 'text' then renderText ctx, op
       when 'rect' then renderRect ctx, op
       when 'arc'  then renderArc  ctx, op
       else console.warn "#{op.type} not finished"
     ctx.restore()
+  ctx.restore()

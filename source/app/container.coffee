@@ -31,12 +31,11 @@ module.exports = creator.create
     y: @tweenFrame.y
 
   render: ->
-    list = [
+    header = line null,
       input null
       button text: 'x'
-    ]
 
     items = @state.todos.map (data) =>
       line data: data
 
-    list.concat items
+    [header].concat items
