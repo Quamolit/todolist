@@ -57,6 +57,7 @@ exports.create = (options) ->
         c.state = c.getIntialState?() or {}
         # store is connected to state directly
         c = connectStore c
+        c.onNewComponent()
 
       # flattern array, in case of this.base.children
       factory = c.render()

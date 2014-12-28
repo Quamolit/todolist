@@ -17,88 +17,67 @@ module.exports = class Manager
     baseId: ''
     index: 0
     z: [0]
-    x: @node.width / 2
-    y: @node.height / 2
+    x: Math.round (@node.width / 2)
+    y: Math.round (@node.height / 2)
 
-  render: (creator) ->
-    rootBase =  @getViewport()
-    tree = creator rootBase, @
-    # console.log json.generate tree
-    @patchVms (lodash.cloneDeep tree)
-    @startAnimationLoop()
-
-  patchVms: (tree) ->
+  updateVmDict: (tree) ->
     list = treeUtil.flatten tree
-    # register new viewmodels
-    lodash.each list, (child) =>
-      @registerVm child
     # fade viewmodels that no longer exist
     lodash.each @vmDict, (child, id) =>
-      if child.isMounted
+      unless child.stage is 'leaving'
         newChild = lodash.find list, {id}
-        @fadeVm id unless newChild?
+        unless newChild?
+          child.stage = 'leaving'
+          child.stageTime = time.now()
+          @updateVmList list
+    # register new viewmodels
+    lodash.each list, (child) =>
+      unless @vmDict[child.id]?
+        @vmDict[child.id] = child
+        child.stage = 'delay'
+        child.stageTime = time.now()
+        @updateVmList list
 
+  updateVmList: (list) ->
     # dont modify original list
     @vmList = list.concat()
     .sort (a, b) ->
       tool.compareZ a.base.z, b.base.z
-    @paintVms()
 
-  registerVm: (child) ->
-    unless @vmDict[child.id]?
-      @vmDict[child.id] = child
-      child.stage = 'new'
-      child.stageTime = time.now()
+  render: (creator) ->
+    requestAnimationFrame => @render creator
 
-  fadeVm: (id) ->
-    child = @vmDict[id]
-    child.isMounted = false
-    console.warn "#{id} is fading"
-    # do somthing
+    isDirty = lodash.some @vmDict, isDirty: yes
+    isMounted = Object.keys(@vmDict).length > 0
 
-  startAnimationLoop: ->
-    console.info 'animation loop'
-    requestAnimationFrame => time.timeout 4000, =>
-      @startAnimationLoop()
+    unless isMounted and isDirty
+      tree = creator @getViewport(), @
+      @updateVmDict (lodash.cloneDeep tree)
+
+    isStable = lodash.every @vmDict, stage: 'stable'
+
+    unless isStable
+      @maintainStages()
+      @paintVms()
+
+  maintainStages: ->
     now = time.now()
     lodash.each @vmDict, (child, id) =>
       switch child.stage
         # remove out date elements
-        when 'dead'     then @handleDeadNodes     child, id, now
-        when 'leaving'  then @handleLeavingNodes  child, id, now
+        when 'leaving'  then @handleLeavingNodes  child, now
         # setup new elements
-        when 'new'      then @handleNewNodes      child, id, now
-        when 'delay'    then @handleDelayNodes    child, id, now
+        when 'delay'    then @handleDelayNodes    child, now
         # animate tween state components
-        when 'entering' then @handleEnteringNodes child, id, now
-        when 'tween'    then @handleTweenNodes    child, id, now
-        when 'stable'   then @handleStableNodes   child, id, now
+        when 'entering' then @handleEnteringNodes child, now
+        when 'tween'    then @handleTweenNodes    child, now
 
-  handleDeadNodes: (c, id, now) ->
-    delete @vmDict[id]
-
-  handleLeavingNodes: (c, id, now) ->
+  handleLeavingNodes: (c, now) ->
     tool.evalArray c.onLeavingCalls
     if now - c.stageTime > c.duration()
-      delete @vmDict[id]
+      delete @vmDict[c.id]
 
-  handleNewNodes: (c, id, now) ->
-    c.stageTime = now
-    switch
-      when c.delay() > 0
-        c.stage = 'delay'
-        tool.evalArray c.onDelayCalls
-      when c.duration() > 0
-        c.stage = 'entering'
-        tool.evalArray c.onDelayCalls
-        tool.evalArray c.onEnteringCalls
-      else
-        c.stage = 'stable'
-        tool.evalArray c.onEnteringCalls
-        tool.evalArray c.onDelayCalls
-        tool.evalArray c.onStableCalls
-
-  handleDelayNodes: (c, id, now) ->
+  handleDelayNodes: (c, now) ->
     if now - c.stageTime > c.delay()
       c.stageTime = now
       switch
@@ -110,25 +89,17 @@ module.exports = class Manager
           tool.evalArray c.onEnteringCalls
           tool.evalArray c.onStableCalls
 
-  handleEnteringNodes: (c, id, now) ->
+  handleEnteringNodes: (c, now) ->
     if now - c.stageTime > c.duration()
       c.stageTime = now
       c.stage = 'stable'
       tool.evalArray c.onEnteringCalls
       tool.evalArray c.onStableCalls
 
-  handleTweenNodes: (c, id, now) ->
-    unless c.isMounted
-      c.stageTime = now
-      c.stage = 'leaving'
-    else if now - c.stageTime > c.duration()
+  handleTweenNodes: (c, now) ->
+    if now - c.stageTime > c.duration()
       c.stageTime = now
       c.stage = 'stable'
-
-  handleStableNodes: (c, id, now) ->
-    unless c.isMounted
-      c.stageTime = now
-      c.stage = 'leaving'
 
   paintVms: ->
     geomerties = @vmList
@@ -136,4 +107,3 @@ module.exports = class Manager
       vm.category is 'canvas'
     .map (vm) ->
       vm.children
-    console.log json.generate (lodash.flatten geomerties)
