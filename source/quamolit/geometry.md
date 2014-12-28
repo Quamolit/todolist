@@ -1,7 +1,7 @@
 
 This is the paint geometry documentation.
 Schemas are in [Cirru JSON][json] to be compact.
-Colors are in HSL so that to be manipulated with [color][color].
+Colors are in HSLa so that to be manipulated with [color][color,0.5].
 Angles are defined in degree to be easier for written.
 
 [color]: https://www.npmjs.com/package/color
@@ -19,7 +19,10 @@ This Spec is working in progress. Currently it contains these shapes:
 * Image
 * Bezier
 * Quadratic
-* Gradient
+* Shadow
+* Gradient(not ready)
+* Transform(not ready)
+* Clip(not ready)
 
 ### Point
 
@@ -37,6 +40,20 @@ map (:x 1) (:y 2)
 
 And `P` is used to reprecent a random point as an example.
 
+### Color
+
+For HSLA colors, use this form:
+
+```cirru
+hsla 240 50 50 0.5
+```
+
+and expands to:
+
+```cirru
+":hsla(240,50%,50%,0.5)"
+```
+
 ### Line
 
 ```cirru
@@ -45,11 +62,11 @@ map
   :base P
   :from P
   :to P
-  :color ":hsl(240,50%,50%)"
+  :color $ hsla 240 50 50 0.5
   :close #true
   :fill #true
-  :strokeStyle ":hsl(240,50%,50%)"
-  :filleStyle ":hsl(240,50%,50%)"
+  :strokeStyle $ hsla 240 50 50 0.5
+  :filleStyle $ hsla 240 50 50 0.5
 ```
 
 ### Path
@@ -60,7 +77,7 @@ map
   :base P
   :from P
   :to P
-  :color ":hsl(240,50%,50%)"
+  :color $ hsla 240 50 50 0.5
   :close #true
   :lineWidth 1
   -- cap can be: butt round square
@@ -71,6 +88,20 @@ map
 ```
 
 ### Text
+
+```cirru
+map
+  :base P
+  :from P
+  :text :demo
+  :family :Optima
+  :size 14
+  -- align can be: left right center
+  :textAlign :center
+  -- baseline can be: top middle bottom alphabetic
+  :baseLine :middle
+  :fillStyle $ hsla 240 50 50 0.5
+```
 
 ### Arc
 
@@ -126,4 +157,13 @@ map
   :to P
 ```
 
-### Gradient
+### Shadow
+
+For shapes that have shadow, use this:
+
+```cirru
+:shadow $ map
+  :vector P
+  :blur 2
+  :color $ hsla 240 50 50 0.5
+```
