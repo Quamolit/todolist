@@ -19,6 +19,7 @@ This Spec is working in progress. Currently it contains these shapes:
 * Image
 * Bezier
 * Quadratic
+* Gradient
 
 ### Point
 
@@ -47,9 +48,27 @@ map
   :color ":hsl(240,50%,50%)"
   :close #true
   :fill #true
+  :strokeStyle ":hsl(240,50%,50%)"
+  :filleStyle ":hsl(240,50%,50%)"
 ```
 
 ### Path
+
+```cirru
+map
+  :type :line
+  :base P
+  :from P
+  :to P
+  :color ":hsl(240,50%,50%)"
+  :close #true
+  :lineWidth 1
+  -- cap can be: butt round square
+  :lineCap :butt
+  -- join can be: round round miter
+  :lineJoin :round
+  :miterLimit
+```
 
 ### Text
 
@@ -74,11 +93,23 @@ map
   :type :rect
   :base P
   :from P
-  :width 10
-  :height 10
+  -- half of width and height
+  :halfVector P
 ```
 
 ### Image
+
+```cirru
+map
+  :type :image
+  :base P
+  :from P
+  -- full size of desired image
+  :scaledVector P
+  -- to slice image
+  :sliceFrom P
+  :sliceVector P
+```
 
 ### Bezier
 
@@ -94,3 +125,5 @@ map
   -- :between $ array P
   :to P
 ```
+
+### Gradient
