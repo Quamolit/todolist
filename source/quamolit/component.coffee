@@ -8,8 +8,9 @@ module.exports =
   base: {} # parent rendering informantion
   props: {} # parent properties
   state: {} # generate by getInitialState
+  propTypes: {} # only anotation
 
-  bezier: (x) -> x # linear by default
+  bezier: -> (x) -> x # linear by default
 
   category: 'component' # or changed to canvas
   name: '<unknown>' # must specify
@@ -22,12 +23,13 @@ module.exports =
   stageTime: 0 # time entered current state, in number
 
   # animation parameters
-  delay: -> @props?.delay or 200
-  duration: -> @props?.duration or 200
+  delay: -> @props?.delay or 300
+  duration: -> @props?.duration or 300
 
   # extra state for animations
   tweenState: {}
-  getCurrentTween: -> # saved to this.tweenState
+  tweenFrame: {}
+  getTweenState: -> # saves to this.tweenState
   getEnteringTween: -> null
   getLeavingTween: -> null
 
@@ -39,15 +41,16 @@ module.exports =
     console.info "setState at #{@id}:", data
     lodash.assign @state, data
     @isDirty = yes
-    @tweenState = @getCurrentTween()
+    @tweenState = @getTweenState()
     @stage = 'tween'
     @stageTime = time.now()
+    @stageTimeState = lodash.cloneDeep @tweenState
 
   # user rendering method like React
   render: ->
 
   # pass some render info to children
-  getChildBase: ->
+  getChildBase: -> {}
 
   # decide if click point is inside
   isPointIn: ->

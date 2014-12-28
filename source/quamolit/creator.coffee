@@ -36,7 +36,6 @@ exports.create = (options) ->
     (base, manager) ->
       vm = manager.vmDict[c.id]
       target = vm or c
-      base.children = expandChildren target, children, manager
 
       lodash.assign c, options
       c.viewport = manager.getViewport()
@@ -48,6 +47,7 @@ exports.create = (options) ->
         index = c.props?.key or c.base.index.toString()
         c.id = "#{c.base.baseId}/#{c.name}.#{index}"
 
+
       # if vm is present, redirect state
       if vm?
       then Object.defineProperty c, 'state',
@@ -55,6 +55,7 @@ exports.create = (options) ->
         set: -> console.error 'can not assign to state'
       else
         c.state = c.getIntialState?() or {}
+        c.tweenState = c.tweenFrame = c.getTweenState?() or {}
         # store is connected to state directly
         c = connectStore c
         c.onNewComponent()
@@ -65,6 +66,8 @@ exports.create = (options) ->
       factory = lodash.flatten factory
       # return a wrapped object
       c.children = expandChildren c, factory, manager
+      filterdChildren = children.filter (x) -> x?
+      base.children = expandChildren target, filterdChildren, manager
 
       # bind method to a working component
       tool.bindMethodsTo c, target

@@ -7,9 +7,12 @@ module.exports = creator.create
 
   render: ->
     (base, manager) =>
-      x: @base.x
-      base:
       type: 'text'
-      x: 0, y: 0
-      size: 14
-      data: 'demo'
+      base: {x: base.x, y: base.y}
+      from: @props.from or {x: 0, y: 0}
+      text: @props.text
+      family: @props.family or 'Optima'
+      size: @props.size or 14
+      textAlign: @props.textAlign or 'center'
+      textBaseline: @props.textBaseline or 'middle'
+      fillStyle: @props.color or 'hsl(240,50%,50%)'

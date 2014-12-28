@@ -9,8 +9,6 @@ button = require '../module/button'
 module.exports = creator.create
   name: 'container'
 
-  delay: -> 400
-
   stores: {todos}
 
   getIntialState: ->
@@ -24,14 +22,13 @@ module.exports = creator.create
     x: -40
     y: 0
 
-  getCurrentTween: ->
+  getTweenState: ->
     x: 0
     y: 0
 
   getChildBase: ->
-    baseId: @id
-
-  onNewComponent: ->
+    x: @tweenFrame.x
+    y: @tweenFrame.y
 
   render: ->
     list = [

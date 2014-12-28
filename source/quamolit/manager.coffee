@@ -5,6 +5,7 @@ lodash = require 'lodash'
 treeUtil = require '../util/tree'
 time = require '../util/time'
 tool = require '../util/tool'
+painter = require './painter'
 
 module.exports = class Manager
   constructor: (options) ->
@@ -29,6 +30,7 @@ module.exports = class Manager
         unless newChild?
           child.stage = 'leaving'
           child.stageTime = time.now()
+          child.stageTimeState = lodash.cloneDeep child.tweenState
           @updateVmList list
     # register new viewmodels
     lodash.each list, (child) =>
@@ -36,6 +38,7 @@ module.exports = class Manager
         @vmDict[child.id] = child
         child.stage = 'delay'
         child.stageTime = time.now()
+        child.stageTimeState = lodash.cloneDeep child.tweenState
         @updateVmList list
 
   updateVmList: (list) ->
@@ -76,10 +79,13 @@ module.exports = class Manager
     tool.evalArray c.onLeavingCalls
     if now - c.stageTime > c.duration()
       delete @vmDict[c.id]
+    else
+      @updateVmTweenFrame c, now
 
   handleDelayNodes: (c, now) ->
     if now - c.stageTime > c.delay()
       c.stageTime = now
+      c.stageTimeState = lodash.cloneDeep c.tweenState
       switch
         when c.duration() > 0
           c.stage = 'entering'
@@ -92,18 +98,33 @@ module.exports = class Manager
   handleEnteringNodes: (c, now) ->
     if now - c.stageTime > c.duration()
       c.stageTime = now
+      c.stageTimeState = lodash.cloneDeep c.tweenState
       c.stage = 'stable'
       tool.evalArray c.onEnteringCalls
       tool.evalArray c.onStableCalls
+    else
+      @updateVmTweenFrame c, now
 
   handleTweenNodes: (c, now) ->
     if now - c.stageTime > c.duration()
-      c.stageTime = now
       c.stage = 'stable'
+      c.stageTime = now
+      c.stageTimeState = lodash.cloneDeep c.tweenState
+    else
+      @updateVmTweenFrame c, now
+
+  updateVmTweenFrame: (c, now) ->
+    ratio = (now - c.stageTime) / c.duration()
+    c.tweenFrame = tool.computeTween c.stageTimeState,
+      c.tweenState, ratio, c.bezier()
 
   paintVms: ->
     geomerties = @vmList
     .filter (vm) ->
       vm.category is 'canvas'
     .map (vm) ->
-      vm.children
+      vm.children[0]
+
+    console.info (json.generate geomerties)
+    return
+    painter.paint geomerties, @node

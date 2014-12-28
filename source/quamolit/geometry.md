@@ -131,7 +131,7 @@ map
   :base P
   :from P
   -- half of width and height
-  :victor P
+  :vector P
   -- kind can be: fill clear stroke
   :kind :fill
   :fillStyle $ hsla 240 50 50 0.5
