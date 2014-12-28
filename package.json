@@ -33,7 +33,9 @@
     "vinyl-transform": "0.0.1"
   },
   "description": "A chat app",
-  "dependencies": {},
+  "dependencies": {
+    "color": "^0.7.3"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Memkits/simple-chat.git"

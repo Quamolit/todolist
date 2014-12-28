@@ -17,17 +17,18 @@ module.exports = class Manager
     baseId: ''
     index: 0
     z: [0]
+    x: @node.width / 2
+    y: @node.height / 2
 
   render: (creator) ->
     rootBase =  @getViewport()
     tree = creator rootBase, @
-    console.log json.generate tree
-    @compareViews (lodash.cloneDeep tree)
+    # console.log json.generate tree
+    @patchVms (lodash.cloneDeep tree)
     @startAnimationLoop()
 
-  compareViews: (tree) ->
+  patchVms: (tree) ->
     list = treeUtil.flatten tree
-    console.log list
     # register new viewmodels
     lodash.each list, (child) =>
       @registerVm child
@@ -36,6 +37,12 @@ module.exports = class Manager
       if child.isMounted
         newChild = lodash.find list, {id}
         @fadeVm id unless newChild?
+
+    # dont modify original list
+    @vmList = list.concat()
+    .sort (a, b) ->
+      tool.compareZ a.base.z, b.base.z
+    @paintVms()
 
   registerVm: (child) ->
     unless @vmDict[child.id]?
@@ -122,3 +129,11 @@ module.exports = class Manager
     unless c.isMounted
       c.stageTime = now
       c.stage = 'leaving'
+
+  paintVms: ->
+    geomerties = @vmList
+    .filter (vm) ->
+      vm.category is 'canvas'
+    .map (vm) ->
+      vm.children
+    console.log json.generate (lodash.flatten geomerties)

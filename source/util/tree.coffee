@@ -9,11 +9,13 @@ exports.flatten = (tree) ->
 
     {children} = tree
     tree.parent = -> parent or null
-    tree.children = null
     collection.push tree
     children.forEach (child) ->
       if child.category is 'component'
+        tree.children = null
         resolve child, tree
+      else # sould be canvas
+        collection.push child
 
   resolve tree
 

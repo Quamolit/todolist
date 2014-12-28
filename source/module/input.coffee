@@ -6,6 +6,6 @@ module.exports = creator.create
   category: 'canvas'
 
   render: ->
-    =>
+    (base, manager) =>
       type: 'input'
       value: 'demo'

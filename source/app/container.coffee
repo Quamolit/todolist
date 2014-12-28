@@ -16,7 +16,6 @@ module.exports = creator.create
 
   getChildBase: ->
     baseId: @id
-    z: @base.z.concat @base.index
 
   render: ->
     list = [

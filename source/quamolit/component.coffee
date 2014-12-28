@@ -10,7 +10,7 @@ module.exports =
 
   bezier: (x) -> x # linear by default
 
-  category: 'canvas' # or changed to component
+  category: 'component' # or changed to canvas
   name: '<unknown>' # must specify
   id: null # only a unique one uses id instead of name
   isMounted: true

@@ -22,6 +22,7 @@ expandChildren = (target, children, manager) ->
     childBase =
       index: index
       baseId: target.id
+      z: target.base.z.concat index
     lodash.assign childBase, target.getChildBase()
     f childBase, manager
 
@@ -57,11 +58,11 @@ exports.create = (options) ->
         c = connectStore c
 
       # flattern array, in case of this.base.children
-      factory = lodash.flatten c.render()
+      factory = c.render()
+      factory = [factory] unless lodash.isArray factory
+      factory = lodash.flatten factory
       # return a wrapped object
-      lodash.assign c,
-        category: 'component'
-        children: expandChildren c, factory, manager
+      c.children = expandChildren c, factory, manager
 
       # bind method to a working component
       tool.bindMethodsTo c, target
