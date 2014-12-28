@@ -29,17 +29,18 @@ expandChildren = (target, children, manager) ->
 exports.create = (options) ->
   # call this in side render
   (props, children...) ->
+    c = lodash.cloneDeep component
+    c.props = props
+
     # call this when parent is computed
     (base, manager) ->
-      c = lodash.cloneDeep component
       vm = manager.vmDict[c.id]
       target = vm or c
       base.children = expandChildren target, children, manager
 
-      lodash.assign c, options,
-        viewport: manager.getViewport()
-        props: props
-        base: base
+      lodash.assign c, options
+      c.viewport = manager.getViewport()
+      c.base = base
 
       # use user written id if exists
       unless c.id?

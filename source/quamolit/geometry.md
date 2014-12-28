@@ -110,9 +110,15 @@ map
   :type :arc
   :base P
   :from P
+  :radius 10
   :startAngle 30
   :endAngle 60
-  :close #true
+  -- anti is short for anticlockwise
+  :anti #true
+  -- kind can be: fill stroke
+  :kind :fill
+  :fillStyle $ hsla 240 50 50 0.5
+  :strokeStyle $ hsla 240 50 50 0.5
 ```
 
 ### Rect
@@ -125,7 +131,11 @@ map
   :base P
   :from P
   -- half of width and height
-  :halfVector P
+  :victor P
+  -- kind can be: fill clear stroke
+  :kind :fill
+  :fillStyle $ hsla 240 50 50 0.5
+  :strokeStyle $ hsla 240 50 50 0.5
 ```
 
 ### Image

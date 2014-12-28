@@ -7,5 +7,5 @@ module.exports = creator.create
 
   render: ->
     (base, manager) =>
-      type: 'button'
+      type: 'rect'
       text: 'demo'

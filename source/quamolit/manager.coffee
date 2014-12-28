@@ -79,16 +79,16 @@ module.exports = class Manager
 
   handleLeavingNodes: (c, id, now) ->
     tool.evalArray c.onLeavingCalls
-    if now - c.stageTime > c.duration
+    if now - c.stageTime > c.duration()
       delete @vmDict[id]
 
   handleNewNodes: (c, id, now) ->
     c.stageTime = now
     switch
-      when c.delay > 0
+      when c.delay() > 0
         c.stage = 'delay'
         tool.evalArray c.onDelayCalls
-      when c.duration > 0
+      when c.duration() > 0
         c.stage = 'entering'
         tool.evalArray c.onDelayCalls
         tool.evalArray c.onEnteringCalls
@@ -99,10 +99,10 @@ module.exports = class Manager
         tool.evalArray c.onStableCalls
 
   handleDelayNodes: (c, id, now) ->
-    if now - c.stageTime > c.delay
+    if now - c.stageTime > c.delay()
       c.stageTime = now
       switch
-        when c.duration > 0
+        when c.duration() > 0
           c.stage = 'entering'
           tool.evalArray c.onEnteringCalls
         else
@@ -111,7 +111,7 @@ module.exports = class Manager
           tool.evalArray c.onStableCalls
 
   handleEnteringNodes: (c, id, now) ->
-    if now - c.stageTime > c.duration
+    if now - c.stageTime > c.duration()
       c.stageTime = now
       c.stage = 'stable'
       tool.evalArray c.onEnteringCalls
@@ -121,7 +121,7 @@ module.exports = class Manager
     unless c.isMounted
       c.stageTime = now
       c.stage = 'leaving'
-    else if now - c.stageTime > c.duration
+    else if now - c.stageTime > c.duration()
       c.stageTime = now
       c.stage = 'stable'
 

@@ -6,9 +6,10 @@ module.exports = creator.create
   category: 'canvas'
 
   render: ->
-    =>
+    (base, manager) =>
+      x: @base.x
+      base:
       type: 'text'
       x: 0, y: 0
       size: 14
       data: 'demo'
-      f: ->

@@ -16,8 +16,8 @@ module.exports =
   isMounted: true
 
   # animation parameters
-  delay: 200
-  duration: 200
+  delay: -> @props?.delay or 200
+  duration: -> @props?.duration or 200
   stage: 'new' # [new delay entering tween stable leaving dead]
   stageTime: 0 # time entered current state, in number
 
