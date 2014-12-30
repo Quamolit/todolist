@@ -3,7 +3,7 @@ creator = require '../quamolit/creator'
 
 rect = require './rect'
 
-module.exports = creator.create
+module.exports = creator.createComponent
   name: 'check'
 
   propTypes:

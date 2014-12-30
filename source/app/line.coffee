@@ -4,7 +4,7 @@ creator = require '../quamolit/creator'
 check = require '../module/check'
 input = require '../module/input'
 
-module.exports = creator.create
+module.exports = creator.createComponent
   name: 'line'
 
   getEnteringTween: ->

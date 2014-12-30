@@ -2,6 +2,7 @@
 time = require '../util/time'
 
 module.exports =
+  category: 'component' # or changed to canvas
   viewport: {} # global viewport infomation
   base: {} # parent rendering informantion
   props: {} # parent properties
@@ -10,11 +11,8 @@ module.exports =
 
   bezier: -> (x) -> x # linear by default
 
-  category: 'component' # or changed to canvas
-  name: '<unknown>' # must specify
+  name: null # must specify
   id: null # only a unique one uses id instead of name
-  isMounted: yes
-  isDirty: no
   touchTime: 0 # everytime it is passed into creator
 
   # state machine of component lifecycle
@@ -43,9 +41,6 @@ module.exports =
 
   # pass some render info to children
   getChildBase: -> {}
-
-  # decide if click point is inside
-  isPointIn: ->
 
   # functions called in entering stages
   onNewComponent: ->

@@ -6,7 +6,7 @@ line = require './line'
 input = require '../module/input'
 button = require '../module/button'
 
-module.exports = creator.create
+module.exports = creator.createComponent
   name: 'container'
 
   stores: {todos}

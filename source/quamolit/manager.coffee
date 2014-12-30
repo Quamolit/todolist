@@ -42,10 +42,9 @@ module.exports = class Manager
   render: (creator) ->
     # requestAnimationFrame => @render creator
 
-    isDirty = lodash.some @vmDict, isDirty: yes
     isMounted = Object.keys(@vmDict).length > 0
 
-    unless isMounted and isDirty
+    unless isMounted
       @tree = creator @getViewport(), @
       @updateVmList()
 
