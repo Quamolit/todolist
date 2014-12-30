@@ -1,6 +1,4 @@
 
-lodash = require 'lodash'
-
 time = require '../util/time'
 
 module.exports =
@@ -17,6 +15,7 @@ module.exports =
   id: null # only a unique one uses id instead of name
   isMounted: yes
   isDirty: no
+  touchTime: 0 # everytime it is passed into creator
 
   # state machine of component lifecycle
   stage: 'delay' # [delay entering tween stable leaving]
@@ -38,13 +37,6 @@ module.exports =
 
   # will be binded
   setState: (data) ->
-    console.info "setState at #{@id}:", data
-    lodash.assign @state, data
-    @isDirty = yes
-    @tweenState = @getTweenState()
-    @stage = 'tween'
-    @stageTime = time.now()
-    @stageTimeState = lodash.cloneDeep @tweenState
 
   # user rendering method like React
   render: ->

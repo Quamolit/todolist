@@ -21,41 +21,33 @@ module.exports = class Manager
     x: Math.round (@node.width / 2)
     y: Math.round (@node.height / 2)
 
-  updateVmDict: (tree) ->
-    list = treeUtil.flatten tree
-    # fade viewmodels that no longer exist
-    lodash.each @vmDict, (child, id) =>
-      unless child.stage is 'leaving'
-        newChild = lodash.find list, {id}
-        unless newChild?
-          child.stage = 'leaving'
-          child.stageTime = time.now()
-          child.stageTimeState = lodash.cloneDeep child.tweenState
-          @updateVmList list
-    # register new viewmodels
-    lodash.each list, (child) =>
-      unless @vmDict[child.id]?
-        @vmDict[child.id] = child
-        child.stage = 'delay'
-        child.stageTime = time.now()
-        child.stageTimeState = lodash.cloneDeep child.tweenState
-        @updateVmList list
-
-  updateVmList: (list) ->
+  updateVmList: ->
+    list = treeUtil.flatten @tree
     # dont modify original list
     @vmList = list.concat()
+    .filter (a) ->
+      a.stage isnt 'leaving'
     .sort (a, b) ->
       tool.compareZ a.base.z, b.base.z
 
+  updatedAt: (changeId) ->
+    lodash.each @vmDict, (child, id) =>
+      if child.stage isnt 'leaving'
+        if id.indexOf(changeId) is 0
+          child.stage = 'leaving'
+          child.stageTime = time.now()
+          child.stageTimeState = lodash.cloneDeep child.tweenState
+    @updateVmList()
+
   render: (creator) ->
-    requestAnimationFrame => @render creator
+    # requestAnimationFrame => @render creator
 
     isDirty = lodash.some @vmDict, isDirty: yes
     isMounted = Object.keys(@vmDict).length > 0
 
     unless isMounted and isDirty
-      tree = creator @getViewport(), @
-      @updateVmDict (lodash.cloneDeep tree)
+      @tree = creator @getViewport(), @
+      @updateVmList()
 
     isStable = lodash.every @vmDict, stage: 'stable'
 
@@ -66,6 +58,8 @@ module.exports = class Manager
   maintainStages: ->
     now = time.now()
     lodash.each @vmDict, (child, id) =>
+      if child.category isnt 'component'
+        return # canvas has no lifecycle
       switch child.stage
         # remove out date elements
         when 'leaving'  then @handleLeavingNodes  child, now
@@ -123,9 +117,6 @@ module.exports = class Manager
     geomerties = @vmList
     .filter (vm) ->
       vm.category is 'canvas'
-    .map (vm) ->
-      vm.children[0]
 
-    console.clear()
     console.info (json.generate geomerties)
     painter.paint geomerties, @node
