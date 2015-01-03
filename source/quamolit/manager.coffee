@@ -124,4 +124,5 @@ module.exports = class Manager
   paintVms: ->
     geomerties = @vmList
     .map (shape) -> shape.canvas
+    console.log 'paint:', geomerties.map((x)->x.type).join(' ')
     painter.paint geomerties, @node
