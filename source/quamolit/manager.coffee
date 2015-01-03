@@ -22,11 +22,10 @@ module.exports = class Manager
     y: Math.round (@node.height / 2)
 
   updateVmList: ->
-    list = treeUtil.flatten @tree
-    # dont modify original list
-    @vmList = list.concat()
-    .filter (a) ->
-      a.stage isnt 'leaving'
+    list = lodash.map @vmDict, (knot, id) -> knot
+    @vmList = list
+    .filter (knot) ->
+      knot.category is 'shape'
     .sort (a, b) ->
       tool.compareZ a.base.z, b.base.z
 
@@ -40,21 +39,17 @@ module.exports = class Manager
     @updateVmList()
 
   render: (creator) ->
-    # requestAnimationFrame => @render creator
+    # knots are binded to @vmDict directly
+    creator @getViewport(), @
+    @updateVmList()
 
-    isMounted = Object.keys(@vmDict).length > 0
-
-    unless isMounted
-      @tree = creator @getViewport(), @
-      @updateVmList()
-
-    isStable = lodash.every @vmDict, stage: 'stable'
-
-    unless isStable
-      @maintainStages()
-      @paintVms()
+    @paintVms()
 
   maintainStages: ->
+    isStable = lodash.every @vmDict, stage: 'stable'
+    unless isStable
+      requestAnimationFrame => @maintainStages()
+
     now = time.now()
     lodash.each @vmDict, (child, id) =>
       if child.category isnt 'component'
@@ -114,8 +109,5 @@ module.exports = class Manager
 
   paintVms: ->
     geomerties = @vmList
-    .filter (vm) ->
-      vm.category is 'canvas'
-
-    console.info (json.generate geomerties)
+    .map (shape) -> shape.canvas
     painter.paint geomerties, @node

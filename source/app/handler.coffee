@@ -1,11 +1,11 @@
 
 creator = require '../quamolit/creator'
 
-rect = require './rect'
-text = require './text'
+input = require '../module/input'
+button = require '../module/button'
 
 module.exports = creator.createComponent
-  name: 'button'
+  name: 'handler'
 
   getEnteringTween: ->
     x: -40
@@ -23,10 +23,7 @@ module.exports = creator.createComponent
     x: @tweenFrame.x
     y: @tweenFrame.y
 
-  render: ->
-    rect
-      vector: {x: 40, 20}
-      color: 'hsl(30,40%,80%)'
-      text
-        text: 'create button'
-        color: 'hsl(0,0%,0%)'
+  render: -> [
+    input null
+    button text: 'x'
+  ]

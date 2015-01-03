@@ -7,7 +7,7 @@ canvas = document.querySelector('#canvas')
 canvas.width = innerWidth
 canvas.height = innerHeight
 
-pageManager = new Manager node: canvas
+window.Q = pageManager = new Manager node: canvas
 
 component = container data: 'demo'
 pageManager.render component

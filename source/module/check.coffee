@@ -27,9 +27,9 @@ module.exports = creator.createComponent
 
   render: ->
     rect
-      vector: {x: 20, y: 20}
-      color: 'hsl(240,30%,80%)'
+      vector: {x: 90, y: 10}
+      color: 'hsla(240,30%,80%,0.5)'
       if @props.checked
         rect
-          vector: {x: 10: y: 10}
+          vector: {x: 10: y: 70}
           color: 'hsl(240,80%,40%)'

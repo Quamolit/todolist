@@ -39,7 +39,14 @@ fillList = (list) ->
     name: 'invisible'
     render: -> -> type: 'invisible'
 
-exports.createComponent = (options) ->
+forceRender = (c, manager) ->
+  # flattern array, in case of this.base.children
+  factory = c.render()
+  factory = [factory] unless lodash.isArray factory
+  factory = fillList (lodash.flatten factory)
+  expandChildren c, factory, manager
+
+exports.createComponent = createComponent = (options) ->
   # call this in side render
   (props, children...) ->
     # call this when parent is computed
@@ -68,13 +75,13 @@ exports.createComponent = (options) ->
         # will be binded
         c.setState = (data) ->
           console.info "setState at #{@id}:", data
-          time.timeout 0, ->
-            manager.updatedAt c.id, c.touchTime
           lodash.assign @state, data
           @tweenState = @getTweenState()
           @stage = 'tween'
           @stageTime = time.now()
           @stageTimeState = lodash.cloneDeep @tweenState
+          forceRender c, manager
+          manager.updatedAt c.id, c.touchTime
         c.viewport = manager.getViewport()
         # store is connected to state directly
         c = connectStore c
@@ -84,11 +91,7 @@ exports.createComponent = (options) ->
 
       # base.children may be used in render()
       base.children = (fillList children)
-      # flattern array, in case of this.base.children
-      factory = c.render()
-      factory = [factory] unless lodash.isArray factory
-      factory = fillList (lodash.flatten factory)
-      expandChildren c, factory, manager
+      forceRender c, manager
 
       return c
 

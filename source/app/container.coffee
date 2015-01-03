@@ -3,8 +3,7 @@ creator = require '../quamolit/creator'
 
 todos = require '../store/todos'
 line = require './line'
-input = require '../module/input'
-button = require '../module/button'
+handler = require './handler'
 
 module.exports = creator.createComponent
   name: 'container'
@@ -31,11 +30,11 @@ module.exports = creator.createComponent
     y: @tweenFrame.y
 
   render: ->
-    header = line null,
-      input null
-      button text: 'x'
+    header = [
+      handler null
+    ]
 
     items = @state.todos.map (data) =>
       line data: data
 
-    [header].concat items
+    header.concat items

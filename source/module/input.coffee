@@ -28,5 +28,5 @@ module.exports = creator.createComponent
       vector: {x: 40, 20}
       color: 'hsl(0,100%,100%)'
       text
-        text: 'create'
+        text: 'create input'
         color: 'hsl(0,0%,50%)'
