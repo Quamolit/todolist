@@ -54,7 +54,6 @@ module.exports = class Manager
     lodash.each @vmDict, (child, id) =>
       if child.category is 'component'
         if child.stage isnt 'stable'
-          # time.timeout 130, =>
           requestAnimationFrame => @maintainStages()
 
     now = time.now()
@@ -122,7 +121,9 @@ module.exports = class Manager
     # console.log c.id, c.tweenFrame
 
   paintVms: ->
-    geomerties = @vmList
+    @geomerties = @vmList
     .map (shape) -> shape.canvas
-    console.log 'paint:', geomerties.map((x)->x.type).join(' ')
-    painter.paint geomerties, @node
+    # console.log 'paint:', geomerties
+    painter.paint @geomerties, @node
+
+  json: json.generate

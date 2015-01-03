@@ -20,10 +20,10 @@ module.exports = creator.createComponent
     y: 0
 
   getChildBase: ->
-    x: @tweenFrame.x
-    y: @tweenFrame.y
+    x: @base.x + @props.x + @tweenFrame.x
+    y: @base.y + @props.y + @tweenFrame.y
 
   render: -> [
-    input null
-    button text: 'x'
+    input x: -80, y: 0
+    button text: 'x', x: 90, y: 0
   ]

@@ -22,8 +22,8 @@ module.exports = creator.createComponent
     y: 0
 
   getChildBase: ->
-    x: @tweenFrame.x
-    y: @tweenFrame.y
+    x: @base.x + @tweenFrame.x
+    y: @base.y + @tweenFrame.y
 
   render: ->
     rect

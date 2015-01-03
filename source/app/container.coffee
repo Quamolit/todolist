@@ -26,15 +26,18 @@ module.exports = creator.createComponent
     y: 0
 
   getChildBase: ->
-    x: @tweenFrame.x
-    y: @tweenFrame.y
+    x: @base.x + @tweenFrame.x
+    y: @base.y + @tweenFrame.y
 
   render: ->
     header = [
-      handler null
+      handler x: 0, y: -120
     ]
 
-    items = @state.todos.map (data) =>
-      line data: data
+    items = @state.todos.map (data, index) =>
+      line
+        data: data
+        x: 0
+        y: (-80 + (index) * 40)
 
     header.concat items

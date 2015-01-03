@@ -22,10 +22,10 @@ module.exports = creator.createComponent
     y: 0
 
   getChildBase: ->
-    x: @tweenFrame.x
-    y: @tweenFrame.y
+    x: @base.x + @props.x + @tweenFrame.x
+    y: @base.y + @props.y + @tweenFrame.y
 
   render: -> [
-    check done: no
+    check checked: yes
     input value: 'text'
   ]

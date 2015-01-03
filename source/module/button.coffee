@@ -20,12 +20,12 @@ module.exports = creator.createComponent
     y: 0
 
   getChildBase: ->
-    x: @tweenFrame.x
-    y: @tweenFrame.y
+    x: @base.x + @props.x + @tweenFrame.x
+    y: @base.y + @props.y + @tweenFrame.y
 
   render: ->
     rect
-      vector: {x: 40, 20}
+      vector: {x: 40, y: 20}
       color: 'hsl(30,40%,80%)'
       text
         text: 'create button'

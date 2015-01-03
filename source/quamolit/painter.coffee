@@ -41,10 +41,8 @@ exports.paint = (operations, node) ->
 
   ctx = node.getContext('2d')
   ctx.clearRect 0, 0, node.width, node.height
-  ctx.save()
   shiftX = Math.round (node.width / 2)
   shiftY = Math.round (node.height / 2)
-  ctx.translate shiftX, shiftY
 
   operations.forEach (op) ->
     ctx.save()
@@ -55,4 +53,3 @@ exports.paint = (operations, node) ->
       when 'arc'  then renderArc  ctx, op
       else console.warn "#{op.type} not finished"
     ctx.restore()
-  ctx.restore()

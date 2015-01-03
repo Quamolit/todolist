@@ -58,13 +58,13 @@ exports.createComponent = createComponent = (options) ->
       if manager.vmDict[id]?
         c = manager.vmDict[id]
         console.info 'touching', id
-        c.touchTime = time.now()
+        # c.touchTime = time.now()
         c.props = props
         c.base = base
       else
         c = lodash.cloneDeep component
         manager.vmDict[id] = c
-        console.info 'creating', id
+        # console.info 'creating', id
         c.touchTime = time.now()
         c.id = id
         lodash.assign c, options
@@ -109,25 +109,27 @@ exports.createShape = createShape = (options) ->
     # call this when parent is computed
     (base, manager) ->
       id = makeIdFrom options, props, base
+      console.log 'shape id:', base.baseId
 
       if manager.vmDict[id]?
         c = manager.vmDict[id]
-        console.info 'touching', id
+        # console.info 'touching', id
         c.touchTime = time.now()
       else
         c = lodash.cloneDeep shape
-        console.info 'creating', id
+        # console.info 'creating', id
         manager.vmDict[id] = c
+        c.id = id
         lodash.assign c, options
         c.touchTime = time.now()
         c.viewport = manager.getViewport()
 
       c.props = props
       c.base = base
-      # return a wrapped object
-      expandChildren c, (fillList children), manager
       # flattern array, in case of this.base.children
       factory = c.render()
       c.canvas = factory base, manager
+      # console.log c.id, 'shape children:', children
+      expandChildren c, (fillList children), manager
 
       return c
