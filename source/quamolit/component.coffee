@@ -20,8 +20,8 @@ module.exports =
   stageTime: 0 # time entered current state, in number
 
   # animation parameters
-  delay: -> @props?.delay or 300
-  duration: -> @props?.duration or 300
+  delay: -> @props?.delay?() or 400
+  duration: -> @props?.duration?() or 400
 
   # extra state for animations
   tweenState: {}

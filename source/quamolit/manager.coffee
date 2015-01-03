@@ -29,31 +29,39 @@ module.exports = class Manager
     .sort (a, b) ->
       tool.compareZ a.base.z, b.base.z
 
-  updatedAt: (changeId) ->
+  leavingDeprecated: (changeId, changeTime) ->
     lodash.each @vmDict, (child, id) =>
-      if child.stage isnt 'leaving'
-        if id.indexOf(changeId) is 0
-          child.stage = 'leaving'
-          child.stageTime = time.now()
-          child.stageTimeState = lodash.cloneDeep child.tweenState
+      return if id.indexOf("#{changeId}/") < 0
+      return if child.stage is 'leaving'
+      return if child.touchTime >= changeTime
+      console.info 'leaving', id
+      child.stage = 'leaving'
+      tool.evalArray child.onLeavingCalls
+      child.stageTime = time.now()
+      child.stageTimeState = lodash.cloneDeep child.tweenState
+    @maintainStages()
     @updateVmList()
 
   render: (creator) ->
     # knots are binded to @vmDict directly
     creator @getViewport(), @
+    @maintainStages()
     @updateVmList()
 
     @paintVms()
 
   maintainStages: ->
-    isStable = lodash.every @vmDict, stage: 'stable'
-    unless isStable
-      requestAnimationFrame => @maintainStages()
+    lodash.each @vmDict, (child, id) =>
+      if child.category is 'component'
+        if child.stage isnt 'stable'
+          # time.timeout 130, =>
+          requestAnimationFrame => @maintainStages()
 
     now = time.now()
     lodash.each @vmDict, (child, id) =>
-      if child.category isnt 'component'
-        return # canvas has no lifecycle
+      return unless child?
+      # canvas has no lifecycle
+      return unless child.category is 'component'
       switch child.stage
         # remove out date elements
         when 'leaving'  then @handleLeavingNodes  child, now
@@ -62,11 +70,17 @@ module.exports = class Manager
         # animate tween state components
         when 'entering' then @handleEnteringNodes child, now
         when 'tween'    then @handleTweenNodes    child, now
+    @paintVms()
 
   handleLeavingNodes: (c, now) ->
-    tool.evalArray c.onLeavingCalls
     if now - c.stageTime > c.duration()
+      console.info 'deleting', c.id
       delete @vmDict[c.id]
+      lodash.each @vmDict, (child, id) =>
+        # remove children
+        if child? and (id.indexOf "#{c.id}/") is 0
+          console.info 'deleting children', id
+          delete @vmDict[id]
     else
       @updateVmTweenFrame c, now
 

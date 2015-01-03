@@ -2,7 +2,7 @@
 lodash = require 'lodash'
 
 exports.evalArray = (list) ->
-  list.forEach (f) -> f()
+  list?.forEach (f) -> f()
 
 exports.bindMethods = (a) ->
   # bind method to a working component

@@ -7,6 +7,8 @@ input = require '../module/input'
 module.exports = creator.createComponent
   name: 'line'
 
+  duration: -> 1000
+
   getEnteringTween: ->
     x: -40
     y: 0

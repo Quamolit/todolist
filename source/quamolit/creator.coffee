@@ -12,7 +12,10 @@ connectStore = (c) ->
   listener = []
   for key, value of c.stores
     c.state[key] = value.get()
-    f = -> c.setState key, value.get()
+    f = ->
+      newState = {}
+      newState[key] = value.get()
+      c.setState newState
     value.register f
     c.onLeavingCalls.push -> value.unregister f
   c
@@ -54,11 +57,15 @@ exports.createComponent = createComponent = (options) ->
       id = makeIdFrom options, props, base
       if manager.vmDict[id]?
         c = manager.vmDict[id]
+        console.info 'touching', id
+        c.touchTime = time.now()
         c.props = props
         c.base = base
       else
         c = lodash.cloneDeep component
         manager.vmDict[id] = c
+        console.info 'creating', id
+        c.touchTime = time.now()
         c.id = id
         lodash.assign c, options
         initialState = c.getIntialState?() or {}
@@ -76,12 +83,13 @@ exports.createComponent = createComponent = (options) ->
         c.setState = (data) ->
           console.info "setState at #{@id}:", data
           lodash.assign @state, data
+          @touchTime = time.now()
           @tweenState = @getTweenState()
           @stage = 'tween'
           @stageTime = time.now()
           @stageTimeState = lodash.cloneDeep @tweenState
           forceRender c, manager
-          manager.updatedAt c.id, c.touchTime
+          manager.leavingDeprecated c.id, c.touchTime
         c.viewport = manager.getViewport()
         # store is connected to state directly
         c = connectStore c
@@ -103,9 +111,12 @@ exports.createShape = createShape = (options) ->
       id = makeIdFrom options, props, base
 
       if manager.vmDict[id]?
-        c = manager.vmDict[cid]
+        c = manager.vmDict[id]
+        console.info 'touching', id
+        c.touchTime = time.now()
       else
         c = lodash.cloneDeep shape
+        console.info 'creating', id
         manager.vmDict[id] = c
         lodash.assign c, options
         c.touchTime = time.now()
