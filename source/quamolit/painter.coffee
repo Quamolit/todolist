@@ -40,6 +40,7 @@ renderArc = (ctx, op) ->
 exports.paint = (operations, node) ->
 
   ctx = node.getContext('2d')
+  console.log 'clear'
   ctx.clearRect 0, 0, node.width, node.height
   shiftX = Math.round (node.width / 2)
   shiftY = Math.round (node.height / 2)

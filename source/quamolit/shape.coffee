@@ -7,7 +7,8 @@ module.exports =
   touchTime: 0 # number: write by manager
 
   getChildBase: ->
-    @base
+    x: @base.x
+    y: @base.y
 
   render: null  # function: user to define
 

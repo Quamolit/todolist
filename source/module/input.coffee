@@ -25,7 +25,7 @@ module.exports = creator.createComponent
 
   render: ->
     rect
-      vector: {x: 40, 20}
+      vector: {x: 40, y: 20}
       color: 'hsl(0,100%,100%)'
       text
         text: 'create input'

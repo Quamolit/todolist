@@ -121,9 +121,12 @@ module.exports = class Manager
     # console.log c.id, c.tweenFrame
 
   paintVms: ->
-    @geomerties = @vmList
-    .map (shape) -> shape.canvas
+    @geomerties = {}
+    geomerties = @vmList
+    .map (shape) =>
+      @geomerties[shape.id] = shape.canvas
+      shape.canvas
     # console.log 'paint:', geomerties
-    painter.paint @geomerties, @node
+    painter.paint geomerties, @node
 
   json: json.generate

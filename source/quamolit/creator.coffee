@@ -57,8 +57,8 @@ exports.createComponent = createComponent = (options) ->
       id = makeIdFrom options, props, base
       if manager.vmDict[id]?
         c = manager.vmDict[id]
-        console.info 'touching', id
-        # c.touchTime = time.now()
+        # console.info 'touching', id
+        c.touchTime = time.now()
         c.props = props
         c.base = base
       else
