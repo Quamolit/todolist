@@ -35,26 +35,24 @@ module.exports = class Manager
       return if child.stage is 'leaving'
       return if child.touchTime >= changeTime
       console.info 'leaving', id
-      child.stage = 'leaving'
       tool.evalArray child.onLeavingCalls
+      child.stage = 'leaving'
       child.stageTime = time.now()
       child.stageTimeState = lodash.cloneDeep child.tweenState
+      child.tweenState = child.getLeavingTween?() or {}
     @maintainStages()
-    @updateVmList()
 
   render: (creator) ->
     # knots are binded to @vmDict directly
     creator @getViewport(), @
     @maintainStages()
-    @updateVmList()
-
-    @paintVms()
 
   maintainStages: ->
-    lodash.each @vmDict, (child, id) =>
+    for id, child of @vmDict
       if child.category is 'component'
         if child.stage isnt 'stable'
-          requestAnimationFrame => @maintainStages()
+          requestAnimationFrame @maintainStages.bind(@)
+          break
 
     now = time.now()
     lodash.each @vmDict, (child, id) =>
@@ -84,9 +82,10 @@ module.exports = class Manager
       @updateVmTweenFrame c, now
 
   handleDelayNodes: (c, now) ->
-    if now - c.stageTime > c.delay()
+    if now - c.stageTime >= c.delay()
       c.stageTime = now
       c.stageTimeState = lodash.cloneDeep c.tweenState
+      c.tweenState = c.getTweenState() or {}
       switch
         when c.duration() > 0
           c.stage = 'entering'
@@ -116,11 +115,11 @@ module.exports = class Manager
 
   updateVmTweenFrame: (c, now) ->
     ratio = (now - c.stageTime) / c.duration()
-    c.tweenFrame = tool.computeTween c.stageTimeState,
-      c.tweenState, ratio, c.bezier()
-    # console.log c.id, c.tweenFrame
+    frame = tool.computeTween c.stageTimeState, c.tweenState, ratio, c.bezier()
+    c.setTweenFrame frame
 
   paintVms: ->
+    @updateVmList()
     @geomerties = {}
     geomerties = @vmList
     .map (shape) =>

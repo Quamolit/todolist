@@ -6,6 +6,7 @@ text = require './text'
 
 module.exports = creator.createComponent
   name: 'input'
+  delay: -> 0
 
   getEnteringTween: ->
     x: -40
@@ -20,13 +21,13 @@ module.exports = creator.createComponent
     y: 0
 
   getChildBase: ->
-    x: @base.x + @tweenFrame.x
-    y: @base.y + @tweenFrame.y
+    x: @base.x + (@props?.x or 0) + @tweenFrame.x
+    y: @base.y + (@props?.y or 0) + @tweenFrame.y
 
   render: ->
     rect
       vector: {x: 40, y: 20}
-      color: 'hsl(0,100%,100%)'
+      color: 'hsl(120,70%,80%)'
       text
         text: 'create input'
         color: 'hsl(0,0%,50%)'

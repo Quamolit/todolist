@@ -7,6 +7,9 @@ canvas = document.querySelector('#canvas')
 canvas.width = innerWidth
 canvas.height = innerHeight
 
+canvas.addEventListener 'click', (event) ->
+  console.log event.x, event.y
+
 window.Q = pageManager = new Manager node: canvas
 
 component = container data: 'demo'

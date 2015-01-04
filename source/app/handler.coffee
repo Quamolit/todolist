@@ -7,6 +7,9 @@ button = require '../module/button'
 module.exports = creator.createComponent
   name: 'handler'
 
+  delay: -> 0
+  duration: -> 1000
+
   getEnteringTween: ->
     x: -40
     y: 0
@@ -20,10 +23,10 @@ module.exports = creator.createComponent
     y: 0
 
   getChildBase: ->
-    x: @base.x + @props.x + @tweenFrame.x
-    y: @base.y + @props.y + @tweenFrame.y
+    x: @base.x + (@props?.x or 0) + @tweenFrame.x
+    y: @base.y + (@props?.y or 0) + @tweenFrame.y
 
   render: -> [
-    input x: -80, y: 0
-    button text: 'x', x: 90, y: 0
+    input x: (@tweenFrame.x - 80), y: @tweenFrame.y
+    button text: 'x', x: (@tweenFrame.x + 90), y: @tweenFrame.y
   ]

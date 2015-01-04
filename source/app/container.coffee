@@ -10,6 +10,8 @@ module.exports = creator.createComponent
 
   stores: {todos}
 
+  delay: -> 0
+
   getIntialState: ->
     text: ''
 
@@ -26,18 +28,18 @@ module.exports = creator.createComponent
     y: 0
 
   getChildBase: ->
-    x: @base.x + @tweenFrame.x
-    y: @base.y + @tweenFrame.y
+    x: @base.x + (@props?.x or 0) + @tweenFrame.x
+    y: @base.y + (@props?.y or 0) + @tweenFrame.y
 
   render: ->
     header = [
-      handler x: 0, y: -120
+      handler x: @tweenFrame.x, y: (@tweenFrame.y - 160)
     ]
 
     items = @state.todos.map (data, index) =>
       line
         data: data
-        x: 0
-        y: (-80 + (index) * 40)
+        x: @tweenFrame.x
+        y: (@tweenFrame.y - 80 + (index) * 80)
 
     header.concat items

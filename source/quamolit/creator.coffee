@@ -65,20 +65,20 @@ exports.createComponent = createComponent = (options) ->
         c = lodash.cloneDeep component
         manager.vmDict[id] = c
         # console.info 'creating', id
-        c.touchTime = time.now()
         c.id = id
         lodash.assign c, options
         initialState = c.getIntialState?() or {}
-        initialTween = c.getTweenState?() or {}
+        enteringTween = c.getEnteringTween?() or {}
         lodash.assign c,
           base: base
           state: initialState
           props: props
           touchTime: time.now()
           stageTime: time.now()
-          tweenState: initialTween
-          tweenFrame: c.getEnteringTween()
-          stageTimeState: c.getEnteringTween()
+          tweenState: enteringTween
+          tweenFrame: enteringTween
+          stageTimeState: lodash.cloneDeep enteringTween
+          viewport: manager.getViewport()
         # will be binded
         c.setState = (data) ->
           console.info "setState at #{@id}:", data
@@ -90,7 +90,9 @@ exports.createComponent = createComponent = (options) ->
           @stageTimeState = lodash.cloneDeep @tweenState
           forceRender c, manager
           manager.leavingDeprecated c.id, c.touchTime
-        c.viewport = manager.getViewport()
+        c.setTweenFrame = (data) ->
+          lodash.assign @tweenFrame, data
+          forceRender c, manager
         # store is connected to state directly
         c = connectStore c
         # bind method to a working component
@@ -109,7 +111,6 @@ exports.createShape = createShape = (options) ->
     # call this when parent is computed
     (base, manager) ->
       id = makeIdFrom options, props, base
-      console.log 'shape id:', base.baseId
 
       if manager.vmDict[id]?
         c = manager.vmDict[id]

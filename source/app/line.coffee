@@ -9,6 +9,8 @@ module.exports = creator.createComponent
 
   duration: -> 1000
 
+  delay: -> 0
+
   getEnteringTween: ->
     x: -40
     y: 0
@@ -22,10 +24,10 @@ module.exports = creator.createComponent
     y: 0
 
   getChildBase: ->
-    x: @base.x + @props.x + @tweenFrame.x
-    y: @base.y + @props.y + @tweenFrame.y
+    x: @base.x + (@props?.x or 0) + @tweenFrame.x
+    y: @base.y + (@props?.y or 0) + @tweenFrame.y
 
   render: -> [
-    check checked: yes
-    input value: 'text'
+    check checked: yes, x: (@tweenFrame.x - 40), y: @tweenFrame.y
+    input value: 'text', x: (@tweenFrame.x + 40), y: @tweenFrame.y
   ]

@@ -26,9 +26,11 @@ module.exports =
   # extra state for animations
   tweenState: {}
   tweenFrame: {}
+  stageTimeState: {}
   getTweenState: -> # saves to this.tweenState
   getEnteringTween: -> null
   getLeavingTween: -> null
+  setTweenFrame: -> # defined by creator
 
   # work with props like React
   getIntialState: {}
