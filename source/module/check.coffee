@@ -10,6 +10,7 @@ module.exports = creator.createComponent
 
   propTypes:
     checked: 'Boolean'
+    onClick: 'Function'
 
   getEnteringTween: ->
     x: -40
@@ -27,8 +28,12 @@ module.exports = creator.createComponent
     x: @base.x + (@props?.x or 0) + @tweenFrame.x
     y: @base.y + (@props?.y or 0) + @tweenFrame.y
 
+  onClick: (event) ->
+    @props.onClick event
+
   render: ->
     rect
+      onClick: @onClick
       vector: {x: 20, y: 20}
       color: 'hsla(240,30%,80%,0.5)'
       if @props.checked

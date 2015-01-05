@@ -11,7 +11,6 @@ module.exports = creator.createComponent
   stores: {todos}
 
   delay: -> 0
-  duration: -> 1000
 
   getIntialState: ->
     text: ''
@@ -27,10 +26,6 @@ module.exports = creator.createComponent
   getTweenState: ->
     x: 0
     y: 0
-
-  getChildBase: ->
-    x: @base.x + (@props?.x or 0) + @tweenFrame.x
-    y: @base.y + (@props?.y or 0) + @tweenFrame.y
 
   render: ->
     header = [

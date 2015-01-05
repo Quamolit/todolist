@@ -48,7 +48,9 @@ module.exports =
   render: ->
 
   # pass some render info to children
-  getChildBase: -> {}
+  getChildBase: ->
+    x: @base.x + (@props?.x or 0) + @tweenFrame.x
+    y: @base.y + (@props?.y or 0) + @tweenFrame.y
 
   # functions called in entering stages
   onNewComponent: ->

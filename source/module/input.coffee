@@ -6,6 +6,9 @@ text = require './text'
 
 module.exports = creator.createComponent
   name: 'input'
+  propTypes:
+    onClick: 'Function'
+
   delay: -> 0
 
   getEnteringTween: ->
@@ -24,8 +27,12 @@ module.exports = creator.createComponent
     x: @base.x + (@props?.x or 0) + @tweenFrame.x
     y: @base.y + (@props?.y or 0) + @tweenFrame.y
 
+  onClick: (event) ->
+    @props.onClick event
+
   render: ->
     rect
+      onClick: @onClick
       vector: {x: 40, y: 20}
       color: 'hsl(120,70%,80%)'
       text

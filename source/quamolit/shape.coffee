@@ -13,4 +13,5 @@ module.exports =
   render: null  # function: user to define
 
   # decide if click point is inside
-  isPointIn: -> # function: user to define
+  coveredPoint: -> false # function: user to define
+  onClick: ->

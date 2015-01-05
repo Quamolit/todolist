@@ -10,6 +10,7 @@ painter = require './painter'
 module.exports = class Manager
   constructor: (options) ->
     @node = options.node
+    @handleEvents()
     @vmDict = {}
     @vmList = []
 
@@ -122,3 +123,15 @@ module.exports = class Manager
     painter.paint geomerties, @node
 
   json: json.generate
+
+  handleEvents: ->
+    @node.addEventListener 'click', (event) =>
+      x = event.offsetX
+      y = event.offsetY
+      ev =
+        bubble: yes
+        x: x
+        y: y
+      for vm in @vmList.concat().reverse()
+        vm.onClick? ev if vm.coveredPoint x, y
+        break unless ev.bubble

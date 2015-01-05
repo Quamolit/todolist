@@ -9,7 +9,7 @@ exports.emit = (action) ->
   else console.warn 'router handler is not found', action
 
 exports.on = (name, cb) ->
-  console.info 'bind action', name
+  # console.info 'bind action', name
   unless routes[name]? then routes[name] = []
   routes[name].push cb
 
