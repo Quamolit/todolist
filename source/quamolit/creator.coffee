@@ -66,36 +66,31 @@ exports.createComponent = createComponent = (options) ->
         c = lodash.cloneDeep component
         manager.vmDict[id] = c
         # console.info 'creating', id
-        c.id = id
-        lodash.assign c, options
-        initialState = c.getIntialState()
-        keyframe = c.getEnteringKeyframe()
-        lodash.assign c,
+        lodash.assign c, options,
+          id: id
           base: base
-          state: initialState
+          state: c.getInitialState()
           props: props
-          touchTime: time.now()
-          lastKeyframeTime: time.now()
-          keyframe: keyframe
-          frame: keyframe
-          lastKeyframe: lodash.cloneDeep keyframe
           viewport: manager.getViewport()
+          touchTime: time.now()
         # will be binded
         c.setState = (data) ->
           console.info "setState at #{@id}:", data
           lodash.assign @state, data
           @touchTime = time.now()
-          @keyframe = @getIntialKeyframe()
+          @keyframe = @getInitialKeyframe()
           @setPeriod 'changing'
           forceRender c, manager
           manager.differLeavingVms c.id, c.touchTime
         c.setKeyframe = (data) ->
           lodash.assign @frame, data
           forceRender c, manager
+        # bind method to a working component
         # store is connected to state directly
         c = connectStore c
-        # bind method to a working component
         tool.bindMethods c
+        c.frame = c.keyframe = c.getEnteringKeyframe()
+        c.setPeriod 'delay'
         c.onNewComponent()
 
       # base.children may be used in render()
@@ -119,10 +114,10 @@ exports.createShape = createShape = (options) ->
         c = lodash.cloneDeep shape
         # console.info 'creating', id
         manager.vmDict[id] = c
-        c.id = id
-        lodash.assign c, options
-        c.touchTime = time.now()
-        c.viewport = manager.getViewport()
+        lodash.assign c, options,
+          id: id
+          touchTime: time.now()
+          viewport: manager.getViewport()
 
       c.props = props
       c.base = base

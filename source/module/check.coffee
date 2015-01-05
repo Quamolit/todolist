@@ -10,7 +10,7 @@ module.exports = creator.createComponent
     checked: 'Boolean'
     onClick: 'Function'
 
-  getIntialKeyframe: ->
+  getInitialKeyframe: ->
     x: 0
     y: 0
 

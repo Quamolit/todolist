@@ -33,8 +33,8 @@ module.exports =
   lastKeyframeTime: 0 # time entered current state, in number
 
   # initial states
-  getIntialState: -> {}
-  getIntialKeyframe: -> {} # saves to this.keyframe
+  getInitialState: -> {}
+  getInitialKeyframe: -> {} # saves to this.keyframe
   getEnteringKeyframe: -> {}
   getLeavingKeyframe: -> {}
 

@@ -85,7 +85,7 @@ module.exports = class Manager
 
   handleDelayNodes: (c, now) ->
     if (now - c.lastKeyframeTime) >= (c.props?.delay or 0)
-      c.keyframe = c.getIntialKeyframe()
+      c.keyframe = c.getInitialKeyframe()
       c.setPeriod (if c.getDuration() > 0 then 'entering' else 'stable')
       tool.evalArray c.onEnterCalls
 

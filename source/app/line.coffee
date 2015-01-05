@@ -7,7 +7,7 @@ input = require '../module/input'
 module.exports = creator.createComponent
   name: 'line'
 
-  getIntialKeyframe: ->
+  getInitialKeyframe: ->
     x: 0
     y: 0
 

@@ -10,10 +10,10 @@ module.exports = creator.createComponent
 
   stores: {todos}
 
-  getIntialState: ->
+  getInitialState: ->
     text: ''
 
-  getIntialKeyframe: ->
+  getInitialKeyframe: ->
     x: 0
     y: 0
 

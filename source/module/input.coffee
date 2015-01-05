@@ -9,7 +9,7 @@ module.exports = creator.createComponent
   propTypes:
     onClick: 'Function'
 
-  getIntialKeyframe: ->
+  getInitialKeyframe: ->
     x: 0
     y: 0
 
