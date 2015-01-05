@@ -86,8 +86,7 @@ exports.createComponent = createComponent = (options) ->
           @touchTime = time.now()
           @tweenState = @getTweenState()
           @stage = 'tween'
-          @stageTime = time.now()
-          @stageTimeState = lodash.cloneDeep @tweenState
+          @updateStage 'tween'
           forceRender c, manager
           manager.leavingDeprecated c.id, c.touchTime
         c.setTweenFrame = (data) ->

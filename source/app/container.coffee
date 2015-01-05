@@ -11,6 +11,7 @@ module.exports = creator.createComponent
   stores: {todos}
 
   delay: -> 0
+  duration: -> 1000
 
   getIntialState: ->
     text: ''

@@ -1,4 +1,6 @@
 
+lodash = require 'lodash'
+
 time = require '../util/time'
 
 module.exports =
@@ -18,6 +20,10 @@ module.exports =
   # state machine of component lifecycle
   stage: 'delay' # [delay entering tween stable leaving]
   stageTime: 0 # time entered current state, in number
+  updateStage: (name) ->
+    @stage = name
+    @stageTime = time.now()
+    @stageTimeState = lodash.cloneDeep @tweenFrame
 
   # animation parameters
   delay: -> @props?.delay?() or 400

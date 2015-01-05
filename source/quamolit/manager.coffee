@@ -31,14 +31,13 @@ module.exports = class Manager
 
   leavingDeprecated: (changeId, changeTime) ->
     lodash.each @vmDict, (child, id) =>
+      return if child.category isnt 'component'
       return if id.indexOf("#{changeId}/") < 0
       return if child.stage is 'leaving'
       return if child.touchTime >= changeTime
       console.info 'leaving', id
       tool.evalArray child.onLeavingCalls
-      child.stage = 'leaving'
-      child.stageTime = time.now()
-      child.stageTimeState = lodash.cloneDeep child.tweenState
+      child.updateStage 'leaving'
       child.tweenState = child.getLeavingTween?() or {}
     @maintainStages()
 
@@ -83,23 +82,19 @@ module.exports = class Manager
 
   handleDelayNodes: (c, now) ->
     if now - c.stageTime >= c.delay()
-      c.stageTime = now
-      c.stageTimeState = lodash.cloneDeep c.tweenState
       c.tweenState = c.getTweenState() or {}
       switch
         when c.duration() > 0
-          c.stage = 'entering'
+          c.updateStage 'entering'
           tool.evalArray c.onEnteringCalls
         else
-          c.stage = 'stable'
+          c.updateStage 'stable'
           tool.evalArray c.onEnteringCalls
           tool.evalArray c.onStableCalls
 
   handleEnteringNodes: (c, now) ->
     if now - c.stageTime > c.duration()
-      c.stageTime = now
-      c.stageTimeState = lodash.cloneDeep c.tweenState
-      c.stage = 'stable'
+      c.updateStage 'stable'
       tool.evalArray c.onEnteringCalls
       tool.evalArray c.onStableCalls
     else
@@ -107,9 +102,7 @@ module.exports = class Manager
 
   handleTweenNodes: (c, now) ->
     if now - c.stageTime > c.duration()
-      c.stage = 'stable'
-      c.stageTime = now
-      c.stageTimeState = lodash.cloneDeep c.tweenState
+      c.updateStage 'stable'
     else
       @updateVmTweenFrame c, now
 
