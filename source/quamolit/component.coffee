@@ -4,58 +4,53 @@ lodash = require 'lodash'
 time = require '../util/time'
 
 module.exports =
-  category: 'component' # or changed to canvas
+  name: null # must specify
+  id: null # only a unique one uses id instead of name
+  propTypes: {} # only anotation
+  category: 'component' # or shape
+
   viewport: {} # global viewport infomation
   base: {} # parent rendering informantion
   props: {} # parent properties
   state: {} # generate by getInitialState
-  propTypes: {} # only anotation
-
-  bezier: -> (x) -> x # linear by default
-
-  name: null # must specify
-  id: null # only a unique one uses id instead of name
   touchTime: 0 # everytime it is passed into creator
 
-  # state machine of component lifecycle
-  stage: 'delay' # [delay entering tween stable leaving]
-  stageTime: 0 # time entered current state, in number
-  updateStage: (name) ->
-    @stage = name
-    @stageTime = time.now()
-    @stageTimeState = lodash.cloneDeep @tweenFrame
-
   # animation parameters
-  delay: -> @props?.delay?() or 400
-  duration: -> @props?.duration?() or 400
+  getDuration: -> @props?.getDuration?() or 400
+  getBezier: -> (x) -> x # linear by default
+
+  # state machine of component lifecycle
+  period: 'delay' # [delay entering changing stable leaving]
+  setPeriod: (name) ->
+    @period = name
+    @lastKeyframeTime = time.now()
+    @lastKeyframe = lodash.cloneDeep @frame
 
   # extra state for animations
-  tweenState: {}
-  tweenFrame: {}
-  stageTimeState: {}
-  getTweenState: -> # saves to this.tweenState
-  getEnteringTween: -> null
-  getLeavingTween: -> null
-  setTweenFrame: -> # defined by creator
+  frame: {}
+  keyframe: {}
+  lastKeyframe: {}
+  lastKeyframeTime: 0 # time entered current state, in number
 
-  # work with props like React
-  getIntialState: {}
+  # initial states
+  getIntialState: -> {}
+  getIntialKeyframe: -> {} # saves to this.keyframe
+  getEnteringKeyframe: -> {}
+  getLeavingKeyframe: -> {}
 
-  # will be binded
-  setState: (data) ->
+  # will be binded to manager
+  setState: null # function
+  setKeyframe: null # function, defined by creator
 
   # user rendering method like React
-  render: ->
+  render: null # function
 
   # pass some render info to children
   getChildBase: ->
-    x: @base.x + (@props?.x or 0) + @tweenFrame.x
-    y: @base.y + (@props?.y or 0) + @tweenFrame.y
+    x: @base.x + (@props?.x or 0) + @frame.x
+    y: @base.y + (@props?.y or 0) + @frame.y
 
-  # functions called in entering stages
+  # functions called in entering periods
   onNewComponent: ->
-  onDelayCalls:     []
-  onEnteringCalls:  []
-  onStableCalls:    []
-  onLeavingCalls:   []
-  onDestroyCalls:   []
+  onEnterCalls: []
+  onDestroyCalls: []

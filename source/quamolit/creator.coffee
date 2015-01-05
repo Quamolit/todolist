@@ -17,10 +17,11 @@ connectStore = (c) ->
       newState[key] = value.get()
       c.setState newState
     value.register f
-    c.onLeavingCalls.push -> value.unregister f
+    c.onDestroyCalls.push -> value.unregister f
   c
 
 expandChildren = (target, children, manager) ->
+  return if target.period is 'delay'
   children = [children] unless lodash.isArray children
   children.map (f, index) ->
     childBase =
@@ -67,30 +68,29 @@ exports.createComponent = createComponent = (options) ->
         # console.info 'creating', id
         c.id = id
         lodash.assign c, options
-        initialState = c.getIntialState?() or {}
-        enteringTween = c.getEnteringTween?() or {}
+        initialState = c.getIntialState()
+        keyframe = c.getEnteringKeyframe()
         lodash.assign c,
           base: base
           state: initialState
           props: props
           touchTime: time.now()
-          stageTime: time.now()
-          tweenState: enteringTween
-          tweenFrame: enteringTween
-          stageTimeState: lodash.cloneDeep enteringTween
+          lastKeyframeTime: time.now()
+          keyframe: keyframe
+          frame: keyframe
+          lastKeyframe: lodash.cloneDeep keyframe
           viewport: manager.getViewport()
         # will be binded
         c.setState = (data) ->
           console.info "setState at #{@id}:", data
           lodash.assign @state, data
           @touchTime = time.now()
-          @tweenState = @getTweenState()
-          @stage = 'tween'
-          @updateStage 'tween'
+          @keyframe = @getIntialKeyframe()
+          @setPeriod 'changing'
           forceRender c, manager
-          manager.leavingDeprecated c.id, c.touchTime
-        c.setTweenFrame = (data) ->
-          lodash.assign @tweenFrame, data
+          manager.differLeavingVms c.id, c.touchTime
+        c.setKeyframe = (data) ->
+          lodash.assign @frame, data
           forceRender c, manager
         # store is connected to state directly
         c = connectStore c

@@ -7,21 +7,19 @@ input = require '../module/input'
 module.exports = creator.createComponent
   name: 'line'
 
-  delay: -> 0
-
-  getEnteringTween: ->
-    x: -40
-    y: 0
-
-  getLeavingTween: ->
-    x: -40
-    y: 0
-
-  getTweenState: ->
+  getIntialKeyframe: ->
     x: 0
     y: 0
 
+  getEnteringKeyframe: ->
+    x: -40
+    y: 0
+
+  getLeavingKeyframe: ->
+    x: -40
+    y: 0
+
   render: -> [
-    check checked: yes, x: (@tweenFrame.x - 40), y: @tweenFrame.y
-    input value: 'text', x: (@tweenFrame.x + 40), y: @tweenFrame.y
+    check checked: yes, x: (@frame.x - 40), y: @frame.y
+    input value: 'text', x: (@frame.x + 40), y: @frame.y
   ]

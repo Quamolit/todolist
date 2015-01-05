@@ -6,27 +6,21 @@ rect = require './rect'
 module.exports = creator.createComponent
   name: 'check'
 
-  delay: -> 0
-
   propTypes:
     checked: 'Boolean'
     onClick: 'Function'
 
-  getEnteringTween: ->
-    x: -40
-    y: 0
-
-  getLeavingTween: ->
-    x: -40
-    y: 0
-
-  getTweenState: ->
+  getIntialKeyframe: ->
     x: 0
     y: 0
 
-  getChildBase: ->
-    x: @base.x + (@props?.x or 0) + @tweenFrame.x
-    y: @base.y + (@props?.y or 0) + @tweenFrame.y
+  getEnteringKeyframe: ->
+    x: -40
+    y: 0
+
+  getLeavingKeyframe: ->
+    x: -40
+    y: 0
 
   onClick: (event) ->
     @props.onClick event

@@ -9,6 +9,7 @@ module.exports =
   getChildBase: ->
     x: @base.x
     y: @base.y
+    z: @base.z.concat @base.index
 
   render: null  # function: user to define
 

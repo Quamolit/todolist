@@ -30,87 +30,81 @@ module.exports = class Manager
     .sort (a, b) ->
       tool.compareZ a.base.z, b.base.z
 
-  leavingDeprecated: (changeId, changeTime) ->
+  differLeavingVms: (changeId, changeTime) ->
     lodash.each @vmDict, (child, id) =>
       return if child.category isnt 'component'
       return if id.indexOf("#{changeId}/") < 0
-      return if child.stage is 'leaving'
+      return if child.period is 'leaving'
       return if child.touchTime >= changeTime
       console.info 'leaving', id
-      tool.evalArray child.onLeavingCalls
-      child.updateStage 'leaving'
-      child.tweenState = child.getLeavingTween?() or {}
-    @maintainStages()
+      child.setPeriod 'leaving'
+      child.keyframe = child.getLeavingKeyframe()
+    @refreshVmPeriods()
 
-  render: (creator) ->
+  render: (factory) ->
     # knots are binded to @vmDict directly
-    creator @getViewport(), @
-    @maintainStages()
+    factory @getViewport(), @
+    @refreshVmPeriods()
 
-  maintainStages: ->
+  refreshVmPeriods: ->
     for id, child of @vmDict
       if child.category is 'component'
-        if child.stage isnt 'stable'
-          requestAnimationFrame @maintainStages.bind(@)
+        if child.period isnt 'stable'
+          requestAnimationFrame @refreshVmPeriods.bind(@)
           break
 
     now = time.now()
     lodash.each @vmDict, (child, id) =>
+      # vm already removed might appear
       return unless child?
       # canvas has no lifecycle
       return unless child.category is 'component'
-      switch child.stage
+      switch child.period
         # remove out date elements
         when 'leaving'  then @handleLeavingNodes  child, now
         # setup new elements
         when 'delay'    then @handleDelayNodes    child, now
-        # animate tween state components
+        # animate components
         when 'entering' then @handleEnteringNodes child, now
-        when 'tween'    then @handleTweenNodes    child, now
+        when 'changing' then @handleTweenNodes    child, now
     @paintVms()
 
   handleLeavingNodes: (c, now) ->
-    if now - c.stageTime > c.duration()
+    if now - c.lastKeyframeTime > c.getDuration()
       console.info 'deleting', c.id
+      @vmDict[c.id] = null
       delete @vmDict[c.id]
       lodash.each @vmDict, (child, id) =>
         # remove children
         if child? and (id.indexOf "#{c.id}/") is 0
           console.info 'deleting children', id
+          tool.evalArray child.onDestroyCalls
           delete @vmDict[id]
     else
       @updateVmTweenFrame c, now
 
   handleDelayNodes: (c, now) ->
-    if now - c.stageTime >= c.delay()
-      c.tweenState = c.getTweenState() or {}
-      switch
-        when c.duration() > 0
-          c.updateStage 'entering'
-          tool.evalArray c.onEnteringCalls
-        else
-          c.updateStage 'stable'
-          tool.evalArray c.onEnteringCalls
-          tool.evalArray c.onStableCalls
+    if (now - c.lastKeyframeTime) >= (c.props?.delay or 0)
+      c.keyframe = c.getIntialKeyframe()
+      c.setPeriod (if c.getDuration() > 0 then 'entering' else 'stable')
+      tool.evalArray c.onEnterCalls
 
   handleEnteringNodes: (c, now) ->
-    if now - c.stageTime > c.duration()
-      c.updateStage 'stable'
-      tool.evalArray c.onEnteringCalls
-      tool.evalArray c.onStableCalls
+    if (now - c.lastKeyframeTime) > c.getDuration()
+      c.setPeriod 'stable'
     else
       @updateVmTweenFrame c, now
 
   handleTweenNodes: (c, now) ->
-    if now - c.stageTime > c.duration()
-      c.updateStage 'stable'
+    if (now - c.lastKeyframeTime) > c.getDuration()
+      c.setPeriod 'stable'
     else
       @updateVmTweenFrame c, now
 
   updateVmTweenFrame: (c, now) ->
-    ratio = (now - c.stageTime) / c.duration()
-    frame = tool.computeTween c.stageTimeState, c.tweenState, ratio, c.bezier()
-    c.setTweenFrame frame
+    ratio = (now - c.lastKeyframeTime) / c.getDuration()
+    frame = tool.computeTween c.lastKeyframe, c.keyframe, ratio, c.getBezier()
+    c.setKeyframe frame
 
   paintVms: ->
     @updateVmList()
