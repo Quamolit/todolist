@@ -30,6 +30,6 @@ actions.on 'delete', (id) ->
   exports.dispatch()
 
 actions.on 'update', (data) ->
-  item = lodash.find id: data.id
+  item = lodash.find list, id: data.id
   lodash.assign item, data
   exports.dispatch()

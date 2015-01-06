@@ -1,15 +1,16 @@
 
 module.exports =
   category: 'shape'
-  name: null    # string: user to define
+  getName: null # function, user to define
   viewport: null # object: write by manager
   base: null # object: write by manager
   touchTime: 0 # number: write by manager
 
+  canvas: null # results
+
   getChildBase: ->
-    x: @base.x
-    y: @base.y
-    z: @base.z.concat @base.index
+    x: @base.x + @canvas.from.x
+    y: @base.y + @canvas.from.y
 
   render: null  # function: user to define
 

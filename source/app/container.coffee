@@ -13,7 +13,7 @@ module.exports = creator.createComponent
   getInitialState: ->
     text: ''
 
-  getInitialKeyframe: ->
+  getKeyframe: ->
     x: 0
     y: 0
 
@@ -33,6 +33,7 @@ module.exports = creator.createComponent
     items = @state.todos.map (data, index) =>
       line
         data: data
+        key: data.id
         x: @frame.x
         y: (@frame.y - 80 + (index) * 80)
         delay: (400 * index + 400)

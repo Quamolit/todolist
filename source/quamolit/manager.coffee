@@ -32,6 +32,11 @@ module.exports = class Manager
 
   differLeavingVms: (changeId, changeTime) ->
     lodash.each @vmDict, (child, id) =>
+      if child.category is 'shape'
+        if id.indexOf("#{changeId}/") is 0
+          if child.touchTime < changeTime
+            @vmDict[id] = null
+            delete @vmDict[id]
       return if child.category isnt 'component'
       return if id.indexOf("#{changeId}/") < 0
       return if child.period is 'leaving'
@@ -39,6 +44,7 @@ module.exports = class Manager
       console.info 'leaving', id
       child.setPeriod 'leaving'
       child.keyframe = child.getLeavingKeyframe()
+      console.log child.keyframe, child.lastKeyframe
     @refreshVmPeriods()
 
   render: (factory) ->
@@ -66,7 +72,7 @@ module.exports = class Manager
         when 'delay'    then @handleDelayNodes    child, now
         # animate components
         when 'entering' then @handleEnteringNodes child, now
-        when 'changing' then @handleTweenNodes    child, now
+        when 'changing' then @handleChangingNodes    child, now
     @paintVms()
 
   handleLeavingNodes: (c, now) ->
@@ -81,11 +87,11 @@ module.exports = class Manager
           tool.evalArray child.onDestroyCalls
           delete @vmDict[id]
     else
-      @updateVmTweenFrame c, now
+      @updateVmFrame c, now
 
   handleDelayNodes: (c, now) ->
     if (now - c.lastKeyframeTime) >= (c.props?.delay or 0)
-      c.keyframe = c.getInitialKeyframe()
+      c.keyframe = c.getKeyframe()
       c.setPeriod (if c.getDuration() > 0 then 'entering' else 'stable')
       tool.evalArray c.onEnterCalls
 
@@ -93,15 +99,15 @@ module.exports = class Manager
     if (now - c.lastKeyframeTime) > c.getDuration()
       c.setPeriod 'stable'
     else
-      @updateVmTweenFrame c, now
+      @updateVmFrame c, now
 
-  handleTweenNodes: (c, now) ->
+  handleChangingNodes: (c, now) ->
     if (now - c.lastKeyframeTime) > c.getDuration()
       c.setPeriod 'stable'
     else
-      @updateVmTweenFrame c, now
+      @updateVmFrame c, now
 
-  updateVmTweenFrame: (c, now) ->
+  updateVmFrame: (c, now) ->
     ratio = (now - c.lastKeyframeTime) / c.getDuration()
     frame = tool.computeTween c.lastKeyframe, c.keyframe, ratio, c.getBezier()
     c.setKeyframe frame

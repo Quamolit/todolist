@@ -10,17 +10,23 @@ module.exports = creator.createComponent
   propTypes:
     onClick: 'Function'
 
-  getInitialKeyframe: ->
+  getKeyframe: ->
     x: 0
     y: 0
+    vx: 50
+    vy: 20
 
   getEnteringKeyframe: ->
     x: -40
     y: 0
+    vx: 0
+    vy: 0
 
   getLeavingKeyframe: ->
     x: -40
     y: 0
+    vx: 0
+    vy: 0
 
   onClick: (event) ->
     @props.onClick event
@@ -28,7 +34,7 @@ module.exports = creator.createComponent
   render: ->
     rect
       onClick: @onClick
-      vector: {x: 50, y: 20}
+      vector: {x: @frame.vx, y: @frame.vy}
       color: 'hsl(30,40%,80%)'
       text
         text: 'create button'

@@ -32,15 +32,14 @@ expandChildren = (target, children, manager) ->
     f childBase, manager
 
 makeIdFrom = (options, props, base) ->
-  if options.id?
-    return options.id
+  return options.id if options.id?
   # generate id as: c.base.baseId + (props.key or base.index)
-  index = props?.key or base.index.toString()
+  index = props?.key or base.index
   "#{base.baseId}/#{options.name}.#{index}"
 
 fillList = (list) ->
   list.map (a) -> a or createShape
-    name: 'invisible'
+    getName: -> 'invisible'
     render: -> -> type: 'invisible'
 
 forceRender = (c, manager) ->
@@ -55,13 +54,20 @@ exports.createComponent = createComponent = (options) ->
   (props, children...) ->
     # call this when parent is computed
     (base, manager) ->
+      options.props = props
       id = makeIdFrom options, props, base
       if manager.vmDict[id]?
         c = manager.vmDict[id]
         # console.info 'touching', id
         c.touchTime = time.now()
+        propsChanged = lodash.isEqual props, c.props
         c.props = props
+        # base will change over time due to changing state
         c.base = base
+        unless propsChanged
+          console.log 'changed'
+          c.setPeriod 'changing'
+          c.keyframe = c.getKeyframe()
       else
         c = lodash.cloneDeep component
         manager.vmDict[id] = c
@@ -78,17 +84,17 @@ exports.createComponent = createComponent = (options) ->
           console.info "setState at #{@id}:", data
           lodash.assign @state, data
           @touchTime = time.now()
-          @keyframe = @getInitialKeyframe()
           @setPeriod 'changing'
+          @keyframe = @getKeyframe()
           forceRender c, manager
           manager.differLeavingVms c.id, c.touchTime
         c.setKeyframe = (data) ->
           lodash.assign @frame, data
           forceRender c, manager
         # bind method to a working component
+        tool.bindMethods c
         # store is connected to state directly
         c = connectStore c
-        tool.bindMethods c
         c.frame = c.keyframe = c.getEnteringKeyframe()
         c.setPeriod 'delay'
         c.onNewComponent()
@@ -118,6 +124,8 @@ exports.createShape = createShape = (options) ->
           id: id
           touchTime: time.now()
           viewport: manager.getViewport()
+        # bind method to a working component
+        tool.bindMethods c
 
       c.props = props
       c.base = base

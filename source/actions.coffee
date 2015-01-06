@@ -1,12 +1,12 @@
 
 routes = {}
 
-exports.emit = (action) ->
-  console.info 'action:', action
-  handlers = routes[action.name]
+exports.emit = (name, data) ->
+  console.info 'action:', name, data
+  handlers = routes[name]
   if handlers.length > 0
-  then handlers.forEach (f) -> f action.data
-  else console.warn 'router handler is not found', action
+  then handlers.forEach (f) -> f data
+  else console.warn 'router handler is not found', name
 
 exports.on = (name, cb) ->
   # console.info 'bind action', name

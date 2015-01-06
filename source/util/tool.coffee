@@ -6,7 +6,7 @@ exports.evalArray = (list) ->
 
 exports.bindMethods = (a) ->
   # bind method to a working component
-  lodash.map a, (name, method) ->
+  lodash.each a, (method, name) ->
     if lodash.isFunction method
       bindedMethod = method.bind a
       a[name] = bindedMethod

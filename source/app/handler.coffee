@@ -7,7 +7,7 @@ button = require '../module/button'
 module.exports = creator.createComponent
   name: 'handler'
 
-  getInitialKeyframe: ->
+  getKeyframe: ->
     x: 0
     y: 0
 

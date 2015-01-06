@@ -4,7 +4,7 @@ lodash = require 'lodash'
 time = require '../util/time'
 
 module.exports =
-  name: null # must specify
+  name: null # function must specify
   id: null # only a unique one uses id instead of name
   propTypes: {} # only anotation
   category: 'component' # or shape
@@ -34,7 +34,7 @@ module.exports =
 
   # initial states
   getInitialState: -> {}
-  getInitialKeyframe: -> {} # saves to this.keyframe
+  getKeyframe: -> {} # saves to this.keyframe
   getEnteringKeyframe: -> {}
   getLeavingKeyframe: -> {}
 
@@ -47,8 +47,8 @@ module.exports =
 
   # pass some render info to children
   getChildBase: ->
-    x: @base.x + (@props?.x or 0) + @frame.x
-    y: @base.y + (@props?.y or 0) + @frame.y
+    x: @base.x + (@props?.x or 0)
+    y: @base.y + (@props?.y or 0)
 
   # functions called in entering periods
   onNewComponent: ->
