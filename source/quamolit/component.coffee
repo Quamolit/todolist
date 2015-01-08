@@ -7,20 +7,29 @@ tool = require '../util/tool'
 creator = require './creator'
 
 module.exports = class Component
-  constructor: ->
+  constructor: (configs) ->
     @name = null # function must specify
-    @id = null # only a unique one uses id instead of name
-    @propTypes = {} # only anotation
     @category = 'component' # or shape
+    # state machine of component lifecycle
+    @period = 'delay' # [delay entering changing stable leaving]
+    @jumping = no # true during base changing
 
-    @viewport = {} # global viewport infomation
-    @touchTime = 0 # everytime it is passed into creator
-    @manager = null # a bind of manager
+    lodash.assign @, configs.options
+    @id = configs.id
+    @base = configs.base
+    @props = configs.props
+    @layout = configs.layout
+    @manager = configs.manager
 
-    @base = {} # parent rendering informantion
-    @props = {} # parent properties
-    @state = {} # generate by getInitialState
-    @layout = {} # defined in parent
+    @propTypes = {} # only anotation
+
+    @viewport = @manager.getViewport()
+    @touchTime = time.now()
+    @onEnterCalls = []
+    @onDestroyCalls = []
+
+    @state = @getInitialState()
+    @connectStore()
     @area = {} # position that merges base, layout, and lastArea
     @cache =
       frame: {}
@@ -28,16 +37,13 @@ module.exports = class Component
       area: {}
       areaTime: 0
 
-    # state machine of component lifecycle
-    @period = 'delay' # [delay entering changing stable leaving]
-    @jumping = no # true during base changing
-
     # extra state for animations
-    @frame = {}
-    @keyframe = {}
+    @frame = @getEnteringKeyframe()
+    @keyframe = @getEnteringKeyframe()
 
-    @onEnterCalls = []
-    @onDestroyCalls = []
+    @onNewComponent()
+
+    @setPeriod @period
 
   # animation parameters
   getDuration: -> @props?.duration or 400

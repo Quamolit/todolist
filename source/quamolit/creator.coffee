@@ -37,28 +37,23 @@ exports.create = create = (options) ->
           # base will change over time due to changing state
           base: base
           layout: layout
+
+        c.area = c.getArea()
+        c.internalRender()
       else
         c = new Component
-        manager.vmDict[id] = c
-        # console.info 'creating', id
-        lodash.assign c, options,
           manager: manager
           id: id
           base: base
-          state: c.getInitialState()
           props: props
           layout: layout
-          viewport: manager.getViewport()
-          touchTime: time.now()
+          options: options
+
+        manager.vmDict[id] = c
+        # console.info 'creating', id
         # bind method to a working component
         tool.bindMethods c
-        # store is connected to state directly
-        c.connectStore()
-        c.frame = c.keyframe = c.getEnteringKeyframe()
-        c.setPeriod c.period
-        c.onNewComponent()
-
-      c.area = c.getArea()
-      c.internalRender()
+        c.area = c.getArea()
+        c.internalRender()
 
       return c
