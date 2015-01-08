@@ -1,23 +1,10 @@
 
 lodash = require 'lodash'
 
-component = require './component'
+Component = require './component'
 
 tool = require '../util/tool'
 time = require '../util/time'
-
-connectStore = (c) ->
-  return c unless c.stores?
-  listener = []
-  for key, value of c.stores
-    c.state[key] = value.get()
-    f = ->
-      newState = {}
-      newState[key] = value.get()
-      c.setState newState
-    value.register f
-    c.onDestroyCalls.push -> value.unregister f
-  c
 
 makeIdFrom = (options, props, base) ->
   return options.id if options.id?
@@ -43,30 +30,19 @@ exports.create = create = (options) ->
       if manager.vmDict[id]?
         c = manager.vmDict[id]
         # console.info 'touching', id
-        if (base.id isnt c.base.id) or (base.index isnt c.base.index)
-          c.cache.area = lodash.cloneDeep c.area
-          c.cache.areaTime = time.now()
-          c.jumping = yes
-        unless lodash.isEqual props, c.props
-          console.log 'changing', props, c.props
-          c.touchTime = time.now()
-          c.setPeriod 'changing'
-          c.keyframe = c.getKeyframe()
-          c.internalRender()
-          manager.differLeavingVms c.id, c.touchTime
+        c.checkBase base
+        c.checkProps props
         lodash.assign c,
           touchTime: time.now()
-          props: props
           # base will change over time due to changing state
           base: base
           layout: layout
-        c.area = c.getArea()
       else
-        c = lodash.cloneDeep component
+        c = new Component
         manager.vmDict[id] = c
-        c.manager = manager
         # console.info 'creating', id
         lodash.assign c, options,
+          manager: manager
           id: id
           base: base
           state: c.getInitialState()
@@ -74,30 +50,15 @@ exports.create = create = (options) ->
           layout: layout
           viewport: manager.getViewport()
           touchTime: time.now()
-        # will be binded
-        c.setState = (data) ->
-          console.info "setState at #{@id}:", data
-          lodash.assign @state, data
-          @touchTime = time.now()
-          @setPeriod 'changing'
-          @keyframe = @getKeyframe()
-          @internalRender()
-          manager.differLeavingVms c.id, c.touchTime
-        c.setKeyframe = (data) ->
-          lodash.assign @frame, data
-          @internalRender()
-        c.setArea = (data) ->
-          lodash.assign @area, data
-          @internalRender()
         # bind method to a working component
         tool.bindMethods c
         # store is connected to state directly
-        c = connectStore c
+        c.connectStore()
         c.frame = c.keyframe = c.getEnteringKeyframe()
         c.setPeriod c.period
-        c.area = c.getArea()
         c.onNewComponent()
 
+      c.area = c.getArea()
       c.internalRender()
 
       return c

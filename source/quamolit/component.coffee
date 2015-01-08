@@ -6,42 +6,46 @@ tool = require '../util/tool'
 
 creator = require './creator'
 
-module.exports =
-  name: null # function must specify
-  id: null # only a unique one uses id instead of name
-  propTypes: {} # only anotation
-  category: 'component' # or shape
+module.exports = class Component
+  constructor: ->
+    @name = null # function must specify
+    @id = null # only a unique one uses id instead of name
+    @propTypes = {} # only anotation
+    @category = 'component' # or shape
 
-  viewport: {} # global viewport infomation
-  touchTime: 0 # everytime it is passed into creator
-  manager: null # a bind of manager
+    @viewport = {} # global viewport infomation
+    @touchTime = 0 # everytime it is passed into creator
+    @manager = null # a bind of manager
 
-  base: {} # parent rendering informantion
-  props: {} # parent properties
-  state: {} # generate by getInitialState
-  layout: {} # defined in parent
-  area: {} # position that merges base, layout, and lastArea
-  cache:
-    frame: {}
-    frameTime: 0 # time entered current state, in number
-    area: {}
-    areaTime: 0
+    @base = {} # parent rendering informantion
+    @props = {} # parent properties
+    @state = {} # generate by getInitialState
+    @layout = {} # defined in parent
+    @area = {} # position that merges base, layout, and lastArea
+    @cache =
+      frame: {}
+      frameTime: 0 # time entered current state, in number
+      area: {}
+      areaTime: 0
+
+    # state machine of component lifecycle
+    @period = 'delay' # [delay entering changing stable leaving]
+    @jumping = no # true during base changing
+
+    # extra state for animations
+    @frame = {}
+    @keyframe = {}
+
+    @onEnterCalls = []
+    @onDestroyCalls = []
 
   # animation parameters
   getDuration: -> @props?.duration or 400
   getBezier: -> (x) -> x # linear by default
-
-  # state machine of component lifecycle
-  period: 'delay' # [delay entering changing stable leaving]
-  jumping: no # true during base changing
   setPeriod: (name) ->
     @period = name
     @cache.frameTime = time.now()
     @cache.frame = lodash.cloneDeep @frame
-
-  # extra state for animations
-  frame: {}
-  keyframe: {}
 
   # initial states
   getInitialState: -> {}
@@ -53,8 +57,38 @@ module.exports =
     tool.combine @base, @layout
 
   # will be binded to manager
-  setState: null # function
-  setKeyframe: null # function, defined by creator
+  setState: (data) ->
+    console.info "setState at #{@id}:", data
+    lodash.assign @state, data
+    @touchTime = time.now()
+    @setPeriod 'changing'
+    @keyframe = @getKeyframe()
+    @internalRender()
+    @manager.differLeavingVms @id, @touchTime
+
+  setKeyframe: (data) ->
+    lodash.assign @frame, data
+    @internalRender()
+
+  setArea: (data) ->
+    lodash.assign @area, data
+    @internalRender()
+
+  checkBase: (base) ->
+    return if (base.id is @base.id) and (base.index is @base.index)
+    @cache.area = lodash.cloneDeep @area
+    @cache.areaTime = time.now()
+    @jumping = yes
+
+  checkProps: (props) ->
+    return if lodash.isEqual props, @props
+    # console.log 'changing', props, @props
+    @touchTime = time.now()
+    @props = props
+    @setPeriod 'changing'
+    @keyframe = @getKeyframe()
+    @internalRender()
+    @manager.differLeavingVms @id, @touchTime
 
   # user rendering method like React
   render: null # function
@@ -88,5 +122,15 @@ module.exports =
 
   # functions called in entering periods
   onNewComponent: ->
-  onEnterCalls: []
-  onDestroyCalls: []
+
+  # listens to updates from store
+  connectStore: ->
+    return unless @stores?
+    for key, value of @stores
+      @state[key] = value.get()
+      f = =>
+        newState = {}
+        newState[key] = value.get()
+        @setState newState
+      value.register f
+      @onDestroyCalls.push -> value.unregister f
