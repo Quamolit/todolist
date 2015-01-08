@@ -32,10 +32,16 @@ module.exports = creator.create
     @props.onClick event
 
   render: ->
-    rect {},
+    rect
+      vector:
+        x: @frame.outerSize
+        y: @frame.outerSize
+    ,
       onClick: @onClick
-      vector: {x: @frame.outerSize, y: @frame.outerSize}
       color: 'hsla(240,30%,80%,0.5)'
-      rect {},
-        vector: {x: @frame.innerSize, y: @frame.innerSize}
+      rect
+        vector:
+          x: @frame.innerSize
+          y: @frame.innerSize
+      ,
         color: 'hsl(240,80%,40%)'

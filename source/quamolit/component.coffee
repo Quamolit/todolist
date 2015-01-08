@@ -4,6 +4,8 @@ lodash = require 'lodash'
 time = require '../util/time'
 tool = require '../util/tool'
 
+creator = require './creator'
+
 module.exports =
   name: null # function must specify
   id: null # only a unique one uses id instead of name
@@ -12,6 +14,7 @@ module.exports =
 
   viewport: {} # global viewport infomation
   touchTime: 0 # everytime it is passed into creator
+  manager: null # a bind of manager
 
   base: {} # parent rendering informantion
   props: {} # parent properties
@@ -25,7 +28,7 @@ module.exports =
     areaTime: 0
 
   # animation parameters
-  getDuration: -> @props?.getDuration?() or 400
+  getDuration: -> @props?.duration or 400
   getBezier: -> (x) -> x # linear by default
 
   # state machine of component lifecycle
@@ -55,6 +58,28 @@ module.exports =
 
   # user rendering method like React
   render: null # function
+  internalRender: (c, manager) ->
+    factory = @render()
+    switch @category
+      when 'shape'
+        @canvas = factory @base, @manager
+        @expandChildren @base.children
+      when 'component'
+        factory = [factory] unless lodash.isArray factory
+        # flattern array, in case of this.base.children
+        factory = creator.fillList (lodash.flatten factory)
+        @expandChildren factory
+
+  expandChildren: (children) ->
+    return if @period is 'delay'
+    children = [children] unless lodash.isArray children
+    children.map (f, index) =>
+      childBase =
+        index: index
+        id: @id
+        z: @base.z.concat index
+      lodash.assign childBase, @getChildBase()
+      f childBase, @manager
 
   # pass some render info to children
   getChildBase: ->

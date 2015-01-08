@@ -19,40 +19,17 @@ connectStore = (c) ->
     c.onDestroyCalls.push -> value.unregister f
   c
 
-expandChildren = (target, children, manager) ->
-  return if target.period is 'delay'
-  children = [children] unless lodash.isArray children
-  children.map (f, index) ->
-    childBase =
-      index: index
-      id: target.id
-      z: target.base.z.concat index
-    lodash.assign childBase, target.getChildBase()
-    f childBase, manager
-
 makeIdFrom = (options, props, base) ->
   return options.id if options.id?
   # generate id as: c.base.id + (props.key or base.index)
   index = props?.key or base.index
   "#{base.id}/#{options.name}.#{index}"
 
-fillList = (list) ->
+exports.fillList = fillList = (list) ->
   list.map (a) -> a or create
     category: 'shape'
     getName: -> 'invisible'
     render: -> -> type: 'invisible'
-
-forceRender = (c, manager) ->
-  # flattern array, in case of this.base.children
-  factory = c.render()
-  switch c.category
-    when 'shape'
-      c.canvas = factory c.base, manager
-      expandChildren c, c.base.children, manager
-    when 'component'
-      factory = [factory] unless lodash.isArray factory
-      factory = fillList (lodash.flatten factory)
-      expandChildren c, factory, manager
 
 exports.create = create = (options) ->
   # call this in side render
@@ -70,6 +47,13 @@ exports.create = create = (options) ->
           c.cache.area = lodash.cloneDeep c.area
           c.cache.areaTime = time.now()
           c.jumping = yes
+        unless lodash.isEqual props, c.props
+          console.log 'changing', props, c.props
+          c.touchTime = time.now()
+          c.setPeriod 'changing'
+          c.keyframe = c.getKeyframe()
+          c.internalRender()
+          manager.differLeavingVms c.id, c.touchTime
         lodash.assign c,
           touchTime: time.now()
           props: props
@@ -80,6 +64,7 @@ exports.create = create = (options) ->
       else
         c = lodash.cloneDeep component
         manager.vmDict[id] = c
+        c.manager = manager
         # console.info 'creating', id
         lodash.assign c, options,
           id: id
@@ -96,14 +81,14 @@ exports.create = create = (options) ->
           @touchTime = time.now()
           @setPeriod 'changing'
           @keyframe = @getKeyframe()
-          forceRender c, manager
+          @internalRender()
           manager.differLeavingVms c.id, c.touchTime
         c.setKeyframe = (data) ->
           lodash.assign @frame, data
-          forceRender c, manager
+          @internalRender()
         c.setArea = (data) ->
           lodash.assign @area, data
-          forceRender c, manager
+          @internalRender()
         # bind method to a working component
         tool.bindMethods c
         # store is connected to state directly
@@ -113,6 +98,6 @@ exports.create = create = (options) ->
         c.area = c.getArea()
         c.onNewComponent()
 
-      forceRender c, manager
+      c.internalRender()
 
       return c

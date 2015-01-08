@@ -32,9 +32,12 @@ module.exports = creator.create
     @props.onClick event
 
   render: ->
-    rect {},
+    rect
+      vector:
+        x: @frame.vx
+        y: @frame.vy
+    ,
       onClick: @onClick
-      vector: {x: @frame.vx, y: @frame.vy}
       color: 'hsl(30,40%,80%)'
       text {},
         text: 'create button'

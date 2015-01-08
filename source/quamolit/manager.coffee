@@ -44,7 +44,6 @@ module.exports = class Manager
       console.info 'leaving', id
       child.setPeriod 'leaving'
       child.keyframe = child.getLeavingKeyframe()
-      console.log child.keyframe, child.cache.frame
     @refreshVmPeriods()
 
   render: (factory) ->
@@ -147,6 +146,6 @@ module.exports = class Manager
         y: y
       for vm in @vmList.concat().reverse()
         if vm.coveredPoint x, y
-          console.log vm
+          # console.log vm
           vm.onClick? ev
         break unless ev.bubble

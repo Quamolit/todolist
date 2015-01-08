@@ -11,20 +11,14 @@ module.exports = creator.create
   getKeyframe: ->
     x: 0
     y: 0
-    checked: @props.data.done
-    text: @props.data.text
 
   getEnteringKeyframe: ->
     x: -40
     y: 0
-    checked: no
-    text: @props.data.text
 
   getLeavingKeyframe: ->
     x: -40
     y: 0
-    checked: no
-    text: @props.data.text
 
   onCheckClick: ->
     actions.emit 'update',
@@ -32,8 +26,8 @@ module.exports = creator.create
 
   render: -> [
     check x: -40, y: 0,
-      checked: @props.checked
+      checked: @props.data.done
       onClick: @onCheckClick
     input x: 40, y: 0,
-      text: @frame.text
+      text: @props.data.text
   ]

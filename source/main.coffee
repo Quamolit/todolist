@@ -8,7 +8,7 @@ canvas.width = innerWidth
 canvas.height = innerHeight
 
 canvas.addEventListener 'click', (event) ->
-  console.info event.offsetX, event.offsetY
+  # console.info event.offsetX, event.offsetY
 
 window.Q = pageManager = new Manager node: canvas
 
