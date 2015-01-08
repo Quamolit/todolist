@@ -16,7 +16,7 @@ module.exports = class Manager
 
   getViewport: ->
     # get node geomerty
-    baseId: ''
+    id: ''
     index: 0
     z: [0]
     x: Math.round (@node.width / 2)
@@ -44,7 +44,7 @@ module.exports = class Manager
       console.info 'leaving', id
       child.setPeriod 'leaving'
       child.keyframe = child.getLeavingKeyframe()
-      console.log child.keyframe, child.lastKeyframe
+      console.log child.keyframe, child.cache.frame
     @refreshVmPeriods()
 
   render: (factory) ->
@@ -72,11 +72,12 @@ module.exports = class Manager
         when 'delay'    then @handleDelayNodes    child, now
         # animate components
         when 'entering' then @handleEnteringNodes child, now
-        when 'changing' then @handleChangingNodes    child, now
+        when 'changing' then @handleChangingNodes child, now
+      if child.jumping  then @handleJumpingNodes  child, now
     @paintVms()
 
   handleLeavingNodes: (c, now) ->
-    if now - c.lastKeyframeTime > c.getDuration()
+    if now - c.cache.frameTime > c.getDuration()
       console.info 'deleting', c.id
       @vmDict[c.id] = null
       delete @vmDict[c.id]
@@ -90,27 +91,39 @@ module.exports = class Manager
       @updateVmFrame c, now
 
   handleDelayNodes: (c, now) ->
-    if (now - c.lastKeyframeTime) >= (c.props?.delay or 0)
+    if (now - c.cache.frameTime) >= (c.layout.delay or 0)
       c.keyframe = c.getKeyframe()
       c.setPeriod (if c.getDuration() > 0 then 'entering' else 'stable')
       tool.evalArray c.onEnterCalls
 
   handleEnteringNodes: (c, now) ->
-    if (now - c.lastKeyframeTime) > c.getDuration()
+    if (now - c.cache.frameTime) > c.getDuration()
       c.setPeriod 'stable'
     else
       @updateVmFrame c, now
 
   handleChangingNodes: (c, now) ->
-    if (now - c.lastKeyframeTime) > c.getDuration()
+    if (now - c.cache.frameTime) > c.getDuration()
       c.setPeriod 'stable'
     else
       @updateVmFrame c, now
 
+  handleJumpingNodes: (c, now) ->
+    if (now - c.cache.areaTime) > c.getDuration()
+      c.jumping = no
+    else
+      @updateVmArea c, now
+
   updateVmFrame: (c, now) ->
-    ratio = (now - c.lastKeyframeTime) / c.getDuration()
-    frame = tool.computeTween c.lastKeyframe, c.keyframe, ratio, c.getBezier()
+    ratio = (now - c.cache.frameTime) / c.getDuration()
+    frame = tool.computeTween c.cache.frame, c.keyframe, ratio, c.getBezier()
     c.setKeyframe frame
+
+  updateVmArea: (c, now) ->
+    ratio = (now - c.cache.areaTime) / c.getDuration()
+    newArea = tool.combine c.base, c.layout
+    area = tool.computeTween c.cache.area, newArea, ratio, c.getBezier()
+    c.setArea area
 
   paintVms: ->
     @updateVmList()
@@ -133,5 +146,7 @@ module.exports = class Manager
         x: x
         y: y
       for vm in @vmList.concat().reverse()
-        vm.onClick? ev if vm.coveredPoint x, y
+        if vm.coveredPoint x, y
+          console.log vm
+          vm.onClick? ev
         break unless ev.bubble

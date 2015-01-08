@@ -4,7 +4,7 @@ creator = require '../quamolit/creator'
 rect = require './rect'
 text = require './text'
 
-module.exports = creator.createComponent
+module.exports = creator.create
   name: 'button'
 
   propTypes:
@@ -32,10 +32,10 @@ module.exports = creator.createComponent
     @props.onClick event
 
   render: ->
-    rect
+    rect {},
       onClick: @onClick
       vector: {x: @frame.vx, y: @frame.vy}
       color: 'hsl(30,40%,80%)'
-      text
+      text {},
         text: 'create button'
         color: 'hsl(0,0%,0%)'

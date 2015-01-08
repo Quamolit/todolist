@@ -2,7 +2,6 @@
 lodash = require 'lodash'
 
 component = require './component'
-shape = require './shape'
 
 tool = require '../util/tool'
 time = require '../util/time'
@@ -26,48 +25,58 @@ expandChildren = (target, children, manager) ->
   children.map (f, index) ->
     childBase =
       index: index
-      baseId: target.id
+      id: target.id
       z: target.base.z.concat index
     lodash.assign childBase, target.getChildBase()
     f childBase, manager
 
 makeIdFrom = (options, props, base) ->
   return options.id if options.id?
-  # generate id as: c.base.baseId + (props.key or base.index)
+  # generate id as: c.base.id + (props.key or base.index)
   index = props?.key or base.index
-  "#{base.baseId}/#{options.name}.#{index}"
+  "#{base.id}/#{options.name}.#{index}"
 
 fillList = (list) ->
-  list.map (a) -> a or createShape
+  list.map (a) -> a or create
+    category: 'shape'
     getName: -> 'invisible'
     render: -> -> type: 'invisible'
 
 forceRender = (c, manager) ->
   # flattern array, in case of this.base.children
   factory = c.render()
-  factory = [factory] unless lodash.isArray factory
-  factory = fillList (lodash.flatten factory)
-  expandChildren c, factory, manager
+  switch c.category
+    when 'shape'
+      c.canvas = factory c.base, manager
+      expandChildren c, c.base.children, manager
+    when 'component'
+      factory = [factory] unless lodash.isArray factory
+      factory = fillList (lodash.flatten factory)
+      expandChildren c, factory, manager
 
-exports.createComponent = createComponent = (options) ->
+exports.create = create = (options) ->
   # call this in side render
-  (props, children...) ->
+  (layout, props, children...) ->
     # call this when parent is computed
     (base, manager) ->
       options.props = props
       id = makeIdFrom options, props, base
+      # base.children may be used in render()
+      base.children = fillList children
       if manager.vmDict[id]?
         c = manager.vmDict[id]
         # console.info 'touching', id
-        c.touchTime = time.now()
-        propsChanged = lodash.isEqual props, c.props
-        c.props = props
-        # base will change over time due to changing state
-        c.base = base
-        unless propsChanged
-          console.log 'changed'
-          c.setPeriod 'changing'
-          c.keyframe = c.getKeyframe()
+        if (base.id isnt c.base.id) or (base.index isnt c.base.index)
+          c.cache.area = lodash.cloneDeep c.area
+          c.cache.areaTime = time.now()
+          c.jumping = yes
+        lodash.assign c,
+          touchTime: time.now()
+          props: props
+          # base will change over time due to changing state
+          base: base
+          layout: layout
+        c.area = c.getArea()
       else
         c = lodash.cloneDeep component
         manager.vmDict[id] = c
@@ -77,6 +86,7 @@ exports.createComponent = createComponent = (options) ->
           base: base
           state: c.getInitialState()
           props: props
+          layout: layout
           viewport: manager.getViewport()
           touchTime: time.now()
         # will be binded
@@ -91,48 +101,18 @@ exports.createComponent = createComponent = (options) ->
         c.setKeyframe = (data) ->
           lodash.assign @frame, data
           forceRender c, manager
+        c.setArea = (data) ->
+          lodash.assign @area, data
+          forceRender c, manager
         # bind method to a working component
         tool.bindMethods c
         # store is connected to state directly
         c = connectStore c
         c.frame = c.keyframe = c.getEnteringKeyframe()
-        c.setPeriod 'delay'
+        c.setPeriod c.period
+        c.area = c.getArea()
         c.onNewComponent()
 
-      # base.children may be used in render()
-      base.children = (fillList children)
       forceRender c, manager
-
-      return c
-
-exports.createShape = createShape = (options) ->
-  # call this in side render
-  (props, children...) ->
-    # call this when parent is computed
-    (base, manager) ->
-      id = makeIdFrom options, props, base
-
-      if manager.vmDict[id]?
-        c = manager.vmDict[id]
-        # console.info 'touching', id
-        c.touchTime = time.now()
-      else
-        c = lodash.cloneDeep shape
-        # console.info 'creating', id
-        manager.vmDict[id] = c
-        lodash.assign c, options,
-          id: id
-          touchTime: time.now()
-          viewport: manager.getViewport()
-        # bind method to a working component
-        tool.bindMethods c
-
-      c.props = props
-      c.base = base
-      # flattern array, in case of this.base.children
-      factory = c.render()
-      c.canvas = factory base, manager
-      # console.log c.id, 'shape children:', children
-      expandChildren c, (fillList children), manager
 
       return c

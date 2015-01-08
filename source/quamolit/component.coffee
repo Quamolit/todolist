@@ -2,6 +2,7 @@
 lodash = require 'lodash'
 
 time = require '../util/time'
+tool = require '../util/tool'
 
 module.exports =
   name: null # function must specify
@@ -10,10 +11,18 @@ module.exports =
   category: 'component' # or shape
 
   viewport: {} # global viewport infomation
+  touchTime: 0 # everytime it is passed into creator
+
   base: {} # parent rendering informantion
   props: {} # parent properties
   state: {} # generate by getInitialState
-  touchTime: 0 # everytime it is passed into creator
+  layout: {} # defined in parent
+  area: {} # position that merges base, layout, and lastArea
+  cache:
+    frame: {}
+    frameTime: 0 # time entered current state, in number
+    area: {}
+    areaTime: 0
 
   # animation parameters
   getDuration: -> @props?.getDuration?() or 400
@@ -21,22 +30,24 @@ module.exports =
 
   # state machine of component lifecycle
   period: 'delay' # [delay entering changing stable leaving]
+  jumping: no # true during base changing
   setPeriod: (name) ->
     @period = name
-    @lastKeyframeTime = time.now()
-    @lastKeyframe = lodash.cloneDeep @frame
+    @cache.frameTime = time.now()
+    @cache.frame = lodash.cloneDeep @frame
 
   # extra state for animations
   frame: {}
   keyframe: {}
-  lastKeyframe: {}
-  lastKeyframeTime: 0 # time entered current state, in number
 
   # initial states
   getInitialState: -> {}
   getKeyframe: -> {} # saves to this.keyframe
   getEnteringKeyframe: -> {}
   getLeavingKeyframe: -> {}
+  # saves to this.area
+  getArea: ->
+    tool.combine @base, @layout
 
   # will be binded to manager
   setState: null # function
@@ -47,8 +58,8 @@ module.exports =
 
   # pass some render info to children
   getChildBase: ->
-    x: @base.x + (@props?.x or 0)
-    y: @base.y + (@props?.y or 0)
+    x: @area.x + (@frame.x or 0)
+    y: @area.y + (@frame.y or 0)
 
   # functions called in entering periods
   onNewComponent: ->

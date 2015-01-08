@@ -5,7 +5,7 @@ creator = require '../quamolit/creator'
 check = require '../module/check'
 input = require '../module/input'
 
-module.exports = creator.createComponent
+module.exports = creator.create
   name: "line"
 
   getKeyframe: ->
@@ -31,11 +31,9 @@ module.exports = creator.createComponent
       id: @props.data.id, done: (not @props.data.done)
 
   render: -> [
-    check
-      x: (@frame.x - 40), y: @frame.y
-      checked: @frame.checked
+    check x: -40, y: 0,
+      checked: @props.checked
       onClick: @onCheckClick
-    input
-      x: (@frame.x + 40), y: @frame.y
-      value: @frame.text
+    input x: 40, y: 0,
+      text: @frame.text
   ]

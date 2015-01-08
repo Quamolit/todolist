@@ -1,8 +1,10 @@
 
 creator = require '../quamolit/creator'
 
-module.exports = creator.createShape
+module.exports = creator.create
   name: 'rect'
+  category: 'shape'
+  period: 'stable'
 
   onClick: (event) ->
     @props.onClick? event
@@ -18,7 +20,8 @@ module.exports = creator.createShape
     (base, manager) =>
       type: 'rect'
       base:
-        x: base.x, y: base.y
+        x: (@layout.x or 0) + base.x
+        y: (@layout.y or 0) + base.y
       from: @props.from or {x: 0, y: 0}
       vector: @props.vector or {x: 10, y: 10}
       kind: @props.kind or 'fill'

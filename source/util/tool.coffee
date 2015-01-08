@@ -28,6 +28,15 @@ exports.computeTween = (a, b, ratio, bezierFn) ->
   keys.forEach (key) ->
     if (lodash.isNumber a[key]) and (lodash.isNumber b[key])
     then c[key] = Math.round (a[key] + (b[key] - a[key]) * (bezierFn ratio))
-    else c[key] = b[key]
+    else c[key] = b[key] or a[key]
   # console.log c.x, c.y
+  c
+
+exports.combine = (a, b) ->
+  c = {}
+  keys = lodash.union (Object.keys a), (Object.keys b)
+  keys.forEach (key) ->
+    if (lodash.isNumber a[key]) and (lodash.isNumber b[key])
+    then c[key] = a[key] + b[key]
+    else c[key] = b[key] or a[key]
   c

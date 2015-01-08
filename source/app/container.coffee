@@ -5,7 +5,7 @@ todos = require '../store/todos'
 line = require './line'
 handler = require './handler'
 
-module.exports = creator.createComponent
+module.exports = creator.create
   name: 'container'
 
   stores: {todos}
@@ -27,15 +27,18 @@ module.exports = creator.createComponent
 
   render: ->
     header = [
-      handler x: @frame.x, y: (@frame.y - 160)
+      handler
+        x: 0
+        y: -140
+      ,
+        {}
     ]
 
     items = @state.todos.map (data, index) =>
-      line
+      order = index
+      line delay: (400 * order), x: 0, y: (80 * order - 80),
         data: data
         key: data.id
-        x: @frame.x
-        y: (@frame.y - 80 + (index) * 80)
-        delay: (400 * index + 400)
+        index: index
 
     header.concat items

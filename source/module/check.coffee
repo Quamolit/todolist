@@ -3,7 +3,7 @@ creator = require '../quamolit/creator'
 
 rect = require './rect'
 
-module.exports = creator.createComponent
+module.exports = creator.create
   name: 'check'
 
   propTypes:
@@ -32,10 +32,10 @@ module.exports = creator.createComponent
     @props.onClick event
 
   render: ->
-    rect
+    rect {},
       onClick: @onClick
       vector: {x: @frame.outerSize, y: @frame.outerSize}
       color: 'hsla(240,30%,80%,0.5)'
-      rect
+      rect {},
         vector: {x: @frame.innerSize, y: @frame.innerSize}
         color: 'hsl(240,80%,40%)'

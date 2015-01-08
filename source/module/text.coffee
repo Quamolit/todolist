@@ -1,9 +1,10 @@
 
 creator = require '../quamolit/creator'
 
-module.exports = creator.createShape
+module.exports = creator.create
   category: 'shape'
   name: 'text'
+  period: 'stable'
 
   coveredPoint: (x, y) -> false
 
@@ -11,7 +12,8 @@ module.exports = creator.createShape
     (base, manager) =>
       type: 'text'
       base:
-        x: base.x, y: base.y
+        x: base.x + (@layout.x or 0)
+        y: base.y + (@layout.y or 0)
       from: @props.from or {x: 0, y: 0}
       text: @props.text
       family: @props.family or 'Optima'
