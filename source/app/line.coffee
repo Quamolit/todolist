@@ -24,10 +24,15 @@ module.exports = creator.create
     actions.emit 'update',
       id: @props.data.id, done: (not @props.data.done)
 
+  onTextChange: (event) ->
+    actions.emit 'update',
+      id: @props.data.id, text: event.text
+
   render: -> [
     check x: -40, y: 0,
       checked: @props.data.done
       onClick: @onCheckClick
     input x: 40, y: 0,
       text: @props.data.text
+      onChange: @onTextChange
   ]

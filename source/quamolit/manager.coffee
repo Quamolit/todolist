@@ -6,6 +6,7 @@ treeUtil = require '../util/tree'
 time = require '../util/time'
 tool = require '../util/tool'
 painter = require './painter'
+dom = require '../util/dom'
 
 module.exports = class Manager
   constructor: (options) ->
@@ -149,3 +150,10 @@ module.exports = class Manager
           # console.log vm
           vm.onClick? ev
         break unless ev.bubble
+
+  createExternalElement: (id, tag, text) ->
+    dom.createInput
+      rect: @node.getBoundingClientRect()
+      text: text
+      onChange: (event) =>
+        @vmDict[id].onChange event

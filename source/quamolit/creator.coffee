@@ -37,8 +37,6 @@ exports.create = create = (options) ->
           # base will change over time due to changing state
           base: base
           layout: layout
-
-        c.area = c.getArea()
         c.internalRender()
       else
         c = new Component
@@ -53,7 +51,6 @@ exports.create = create = (options) ->
         # console.info 'creating', id
         # bind method to a working component
         tool.bindMethods c
-        c.area = c.getArea()
         c.internalRender()
 
       return c

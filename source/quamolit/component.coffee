@@ -99,6 +99,8 @@ module.exports = class Component
   # user rendering method like React
   render: null # function
   internalRender: (c, manager) ->
+    unless @jumping
+      @area = @getArea()
     factory = @render()
     switch @category
       when 'shape'

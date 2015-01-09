@@ -4,10 +4,13 @@ creator = require '../quamolit/creator'
 rect = require './rect'
 text = require './text'
 
+actions = require '../actions'
+
 module.exports = creator.create
   name: 'input'
+
   propTypes:
-    onClick: 'Function'
+    onChange: 'Function'
 
   getKeyframe: ->
     x: 0
@@ -31,7 +34,10 @@ module.exports = creator.create
     text: ''
 
   onClick: (event) ->
-    @props.onClick event
+    @manager.createExternalElement @id, 'input', @props.text
+
+  onChange: (event) ->
+    @props.onChange event
 
   render: ->
     rect
